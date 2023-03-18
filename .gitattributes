@@ -1,0 +1,11 @@
+* text=auto
+
+# Directories
+/.git export-ignore
+/.github export-ignore
+
+# Files
+/.gitattributes export-ignore
+/.editorconfig export-ignore
+/.gitignore export-ignore
+/composer.lock export-ignore
