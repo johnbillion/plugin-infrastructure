@@ -5,8 +5,8 @@
 set -eo pipefail
 
 # Args
-PLUGIN=$1
-CODECEPT_ARGS=$2
+PLUGIN=${PWD##*/}
+CODECEPT_ARGS=$1
 
 echo "Starting up..."
 
