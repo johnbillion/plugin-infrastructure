@@ -1,6 +1,6 @@
 {
 	"name": "johnbillion/plugin-infrastructure",
-	"description": "Reusable bits of infrastructure for my plugins",
+	"description": "Reusable infrastructure relating to testing, building, and deploying my WordPress plugins",
 	"license": "MIT",
 	"type": "library",
 	"authors": [
