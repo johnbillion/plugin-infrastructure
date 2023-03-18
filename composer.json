@@ -21,6 +21,9 @@
 	"require-dev": {
 		"ergebnis/composer-normalize": "^2"
 	},
+	"bin": [
+		"bin/integration-tests"
+	],
 	"config": {
 		"allow-plugins": {
 			"ergebnis/composer-normalize": true
