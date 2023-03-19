@@ -3,29 +3,24 @@
 name: Acceptance Tests
 on:
   workflow_call:
+    inputs:
+      wp:
+        required: true
+        type: string
+      php:
+        required: true
+        type: string
 
 jobs:
   test:
-    strategy:
-      matrix:
-        wp: ['6.1','5.6','nightly']
-        php: ['8.0','7.4','7.2']
-        include:
-          - wp: '6.1'
-            php: '8.1'
-          - wp: '6.1'
-            php: '8.2'
-          - wp: 'nightly'
-            php: '8.2'
-      fail-fast: false
-    name: WP ${{ matrix.wp }} / PHP ${{ matrix.php }}
+    name: WP ${{ inputs.wp }} / PHP ${{ inputs.php }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
     timeout-minutes: 10
     env:
-      LOCAL_PHP: ${{ matrix.php }}
-      LOCAL_WP_DEBUG: ${{ matrix.php < 8.1 && 1 || 0 }}
+      LOCAL_PHP: ${{ inputs.php }}
+      LOCAL_WP_DEBUG: ${{ inputs.php < 8.1 && 1 || 0 }}
     steps:
     - name: Matrix values
       run: echo "${{ toJSON(matrix) }}"
@@ -63,11 +58,11 @@ jobs:
 
     - name: Install Composer dependencies
       run: |
-        if [ "${{ matrix.wp }}" == "nightly" ]
+        if [ "${{ inputs.wp }}" == "nightly" ]
         then
           composer require --dev --update-with-dependencies --prefer-dist roots/wordpress="dev-nightly"
         else
-          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress="~${{ matrix.wp }}.0"
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress="~${{ inputs.wp }}.0"
         fi
 
     - name: Setup node
@@ -98,5 +93,5 @@ jobs:
       if: failure()
       uses: actions/upload-artifact@v3
       with:
-        name: acceptance-wp-${{ matrix.wp }}-php-${{ matrix.php }}
+        name: acceptance-wp-${{ inputs.wp }}-php-${{ inputs.php }}
         path: tests/_output
