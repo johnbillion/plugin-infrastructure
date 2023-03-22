@@ -13,7 +13,6 @@ on:
 
 jobs:
   test:
-    name: WP ${{ inputs.wp }} / PHP ${{ inputs.php }}
     runs-on: ubuntu-latest
     permissions:
       contents: read

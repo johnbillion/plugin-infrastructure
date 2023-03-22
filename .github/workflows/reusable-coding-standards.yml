@@ -6,7 +6,6 @@ on:
 
 jobs:
   test:
-    name: PHP Coding Standards
     runs-on: ubuntu-latest
     permissions:
       contents: read
