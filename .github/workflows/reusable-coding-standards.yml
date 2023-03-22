@@ -6,6 +6,7 @@ on:
 
 jobs:
   test:
+    name: PHP
     runs-on: ubuntu-latest
     permissions:
       contents: read
