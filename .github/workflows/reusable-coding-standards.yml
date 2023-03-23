@@ -51,13 +51,10 @@ jobs:
       run: composer validate --strict --no-check-lock
 
     - name: Install dependencies
-      run: |
-        composer install --prefer-dist
+      run: composer install --prefer-dist
 
     - name: Run static analysis
-      run: |
-        composer test:phpstan
+      run: composer test:phpstan
 
     - name: Run code sniffer
-      run: |
-        composer test:phpcs
+      run: composer test:phpcs
