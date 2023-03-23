@@ -50,13 +50,11 @@ jobs:
 
     - name: Setup version
       if: ${{ ! inputs.test }}
-      run: |
-        "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+      run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
 
     - name: Setup test version
       if: ${{ inputs.test }}
-      run: |
-        "VERSION=test-$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+      run: echo "VERSION=test-$(node -p "require('./package.json').version")" >> $GITHUB_ENV
 
     - name: Tag
       run: |
