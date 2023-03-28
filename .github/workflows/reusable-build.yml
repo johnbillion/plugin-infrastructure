@@ -3,11 +3,6 @@
 name: Build
 on:
   workflow_call:
-    inputs:
-      test:
-        type: boolean
-        required: false
-        default: false
 
 jobs:
   build:
@@ -49,12 +44,7 @@ jobs:
       run: npm run build
 
     - name: Setup version
-      if: ${{ ! inputs.test }}
       run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
-
-    - name: Setup test version
-      if: ${{ inputs.test }}
-      run: echo "VERSION=test-$(node -p "require('./package.json').version")" >> $GITHUB_ENV
 
     - name: Tag
       run: |
