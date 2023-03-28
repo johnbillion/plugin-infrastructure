@@ -1,0 +1,7 @@
+parameters:
+	bootstrapFiles:
+		- stubs.php
+	dynamicConstantNames:
+		- COOKIE_DOMAIN
+		- SAVEQUERIES
+	tmpDir: ../../../../tests/cache
