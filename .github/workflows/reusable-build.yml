@@ -2,7 +2,7 @@
 
 name: Build
 on:
-  workflow_call:
+  workflow_call: null
 
 jobs:
   build:
@@ -18,8 +18,7 @@ jobs:
     - name: Install PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: 8.0
-        tools: composer:v2
+        php-version: '8.0'
         coverage: none
         ini-file: development
       env:
@@ -32,31 +31,30 @@ jobs:
         node-version-file: '.nvmrc'
         cache: npm
 
-    - name: Install Dependencies
+    - name: Install Nodejs Dependencies
       run: npm ci
 
+    - name: Install PHP Dependencies
+      run: composer install
+
     - name: Generate autoload file
-      run: |
-        composer install
-        composer run build-vendor
+      run: composer run build-vendor
 
     - name: Build Assets
       run: npm run build
 
     - name: Setup version
-      run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
-
-    - name: Tag
       run: |
-        echo "Releasing version $VERSION ..."
+        echo "VERSION=$(jq -r '."version"' ./package.json)" >>"${GITHUB_ENV}"
+
+    - name: Release version ${{ env.VERSION }}
+      run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
-        git checkout -b "release-$VERSION"
-        git add -f assets/*
-        git add -f vendor/autoload.php
-        git add -f vendor/composer/*
-        git commit -m "Release $VERSION"
-        git tag "$VERSION"
+        git checkout -b "release-${VERSION}"
+        git add -f assets/ vendor/autoload.php vendor/composer/
+        git commit -m "Release ${VERSION}"
+        git tag "${VERSION}"
         git push --tags
       env:
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
