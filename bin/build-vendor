@@ -13,8 +13,14 @@ sed -i.bak 's/\$loader->setClassMapAuthoritative(true);/if (method_exists(\$load
 rm "${PWD}/vendor/composer/autoload_real.php.bak"
 
 # Remove autoloading for `\Composer\InstalledVersions`:
-sed -i.bak '/Composer\\\\InstalledVersions/d' "${PWD}/vendor/composer/autoload_classmap.php"
 sed -i.bak '/Composer\\\\InstalledVersions/d' "${PWD}/vendor/composer/autoload_static.php"
-rm "${PWD}/vendor/composer/autoload_classmap.php.bak"
 rm "${PWD}/vendor/composer/autoload_static.php.bak"
-rm "${PWD}/vendor/composer/InstalledVersions.php"
+
+# Remove files not needed for deployment:
+rm -f "${PWD}/vendor/composer/autoload_classmap.php"
+rm -f "${PWD}/vendor/composer/autoload_files.php"
+rm -f "${PWD}/vendor/composer/autoload_namespaces.php"
+rm -f "${PWD}/vendor/composer/autoload_psr4.php"
+rm -f "${PWD}/vendor/composer/installed.json"
+rm -f "${PWD}/vendor/composer/installed.php"
+rm -f "${PWD}/vendor/composer/InstalledVersions.php"
