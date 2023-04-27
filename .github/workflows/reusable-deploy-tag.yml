@@ -42,7 +42,7 @@ jobs:
 
     - name: Populate Changelog
       run: |
-        node .github/workflows/changelog.js ${{ inputs.readme }}
+        node vendor/johnbillion/plugin-infrastructure/bin/changelog.js ${{ inputs.readme }}
         git config user.name github-actions
         git config user.email github-actions@github.com
         git add ${{ inputs.readme }}
