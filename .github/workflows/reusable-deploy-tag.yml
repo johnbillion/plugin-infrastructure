@@ -16,8 +16,6 @@ on:
       WPORG_SVN_PASSWORD:
         required: true
 
-concurrency: WordPress.org
-
 jobs:
   wordpress:
     name: WordPress.org
