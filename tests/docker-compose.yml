@@ -22,9 +22,9 @@ services:
     restart: always
     environment:
       WORDPRESS_DB_HOST: database
-      WORDPRESS_DB_USER: exampleuser
-      WORDPRESS_DB_PASSWORD: examplepass
-      WORDPRESS_DB_NAME: exampledb
+      WORDPRESS_DB_USER: pluginuser
+      WORDPRESS_DB_PASSWORD: pluginpass
+      WORDPRESS_DB_NAME: plugindb
       WORDPRESS_DEBUG: ${LOCAL_WP_DEBUG-1}
     depends_on:
       - database
@@ -42,9 +42,9 @@ services:
     ports:
       - 3306
     environment:
-      MYSQL_DATABASE: exampledb
-      MYSQL_USER: exampleuser
-      MYSQL_PASSWORD: examplepass
+      MYSQL_DATABASE: plugindb
+      MYSQL_USER: pluginuser
+      MYSQL_PASSWORD: pluginpass
       MYSQL_RANDOM_ROOT_PASSWORD: '1'
     volumes:
       - database:/var/lib/mysql:rw
@@ -54,9 +54,9 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME}-wpcli
     environment:
       WORDPRESS_DB_HOST: database
-      WORDPRESS_DB_USER: exampleuser
-      WORDPRESS_DB_PASSWORD: examplepass
-      WORDPRESS_DB_NAME: exampledb
+      WORDPRESS_DB_USER: pluginuser
+      WORDPRESS_DB_PASSWORD: pluginpass
+      WORDPRESS_DB_NAME: plugindb
     depends_on:
       - database
       - php
