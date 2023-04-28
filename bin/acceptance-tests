@@ -22,7 +22,10 @@ WP_URL="http://host.docker.internal:${WP_PORT}"
 WP="docker-compose run --rm wpcli --url=${WP_URL}"
 
 # Wait for the web server:
-./node_modules/.bin/wait-port -t 10000 $WP_PORT
+while ! curl -sSL "${WP_URL}" 2>&1 >/dev/null; do
+	echo 'Waiting for the web server...'
+	sleep 1
+done
 
 # Wait for the database server:
 while ! docker-compose exec -T database /bin/bash -c 'mysqladmin ping --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --silent' | grep 'mysqld is alive' >/dev/null; do
