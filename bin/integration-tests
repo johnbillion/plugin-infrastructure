@@ -27,11 +27,11 @@ echo "Running tests..."
 docker-compose exec \
 	-T \
 	--workdir "/var/www/html/wp-content/plugins/${PLUGIN}" php \
-	./vendor/bin/codecept run integration --env singlesite --skip-group ms-required --debug "${CODECEPT_ARGS}" \
+	./vendor/bin/codecept run integration --env singlesite --skip-group ms-required "${CODECEPT_ARGS}" \
 	< /dev/null
 
 docker-compose exec \
 	-T \
 	--workdir "/var/www/html/wp-content/plugins/${PLUGIN}" php \
-	./vendor/bin/codecept run integration --env multisite --skip-group ms-excluded --debug "${CODECEPT_ARGS}" \
+	./vendor/bin/codecept run integration --env multisite --skip-group ms-excluded "${CODECEPT_ARGS}" \
 	< /dev/null
