@@ -42,7 +42,7 @@ jobs:
 
     - name: Populate Changelog
       run: |
-        composer update johnbillion/plugin-infrastructure
+        composer update
         node vendor/johnbillion/plugin-infrastructure/bin/changelog.js ${{ inputs.readme }}
         git config user.name github-actions
         git config user.email github-actions@github.com
