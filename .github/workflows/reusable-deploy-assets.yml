@@ -56,7 +56,7 @@ jobs:
         run: npm run build
 
       - name: Populate Changelog
-        run: node .github/workflows/changelog.js ${{ inputs.readme }}
+        run: node vendor/johnbillion/plugin-infrastructure/bin/changelog.js ${{ inputs.readme }}
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
