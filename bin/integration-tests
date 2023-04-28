@@ -8,6 +8,9 @@ set -eo pipefail
 PLUGIN=${PWD##*/}
 CODECEPT_ARGS=$1
 
+# Environment variables
+export COMPOSE_PROJECT_NAME=${PLUGIN}
+
 echo "Starting up..."
 
 # Wait for MariaDB:
