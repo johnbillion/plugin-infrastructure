@@ -3,6 +3,10 @@
 name: Coding Standards
 on:
   workflow_call:
+    inputs:
+      php:
+        required: true
+        type: string
 
 jobs:
   test:
@@ -18,7 +22,7 @@ jobs:
     - name: Install PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.0'
+        php-version: ${{ inputs.php }}
         tools: composer:v2
         coverage: none
         ini-file: development
@@ -34,13 +38,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: 8.0-composer-${{ hashFiles('composer.json') }}
+        key: ${{ inputs.php }}-composer-${{ hashFiles('composer.json') }}
 
     - name: PHPCS and PHPStan cache
       uses: actions/cache@v3
       with:
         path: tests/cache
-        key: 8.0-phpcs-${{ hashFiles('composer.json') }}
+        key: ${{ inputs.php }}-phpcs-${{ hashFiles('composer.json') }}
 
     - name: Debugging
       run: |
