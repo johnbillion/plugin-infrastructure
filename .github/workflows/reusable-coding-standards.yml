@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    name: PHP ${{ inputs.php }}
+    name: PHP / PHP ${{ inputs.php }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
