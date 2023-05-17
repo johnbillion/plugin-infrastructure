@@ -37,8 +37,11 @@ jobs:
         node-version-file: '.nvmrc'
         cache: npm
 
-    - name: Install Dependencies
+    - name: Install Node Dependencies
       run: npm ci
+
+    - name: Install Composer Dependencies
+      run: composer install
 
     - name: Populate Changelog
       run: |
