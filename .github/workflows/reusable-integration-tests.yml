@@ -10,6 +10,10 @@ on:
       php:
         required: true
         type: string
+      node:
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   test:
@@ -60,15 +64,18 @@ jobs:
         composer require --dev --update-with-dependencies --prefer-dist roots/wordpress="${{ inputs.wp }}"
 
     - name: Setup node
+      if: ${{ inputs.node }}
       uses: actions/setup-node@v3
       with:
         node-version-file: '.nvmrc'
         cache: npm
 
     - name: Install node dependencies
+      if: ${{ inputs.node }}
       run: npm ci
 
     - name: Run the build
+      if: ${{ inputs.node }}
       run: npm run build
 
     - name: Start Docker environment
