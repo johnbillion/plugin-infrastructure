@@ -40,3 +40,5 @@ docker-compose exec \
 	--workdir "/var/www/html/wp-content/plugins/${PLUGIN}" php \
 	./vendor/bin/codecept run integration --env multisite --skip-group ms-excluded "${CODECEPT_ARGS}" \
 	< /dev/null
+
+echo "Integration tests complete."

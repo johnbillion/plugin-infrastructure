@@ -62,3 +62,5 @@ TEST_SITE_WEBDRIVER_PORT=$CHROME_PORT \
 
 # Ciao:
 docker-compose stop chrome
+
+echo "Acceptance tests complete."
