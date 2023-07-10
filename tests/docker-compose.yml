@@ -19,6 +19,7 @@ services:
   php:
     image: wordpressdevelop/php:${LOCAL_PHP-8.1}-fpm
     container_name: ${COMPOSE_PROJECT_NAME}-php
+    tty: true
     restart: always
     environment:
       WORDPRESS_DB_HOST: database
