@@ -49,7 +49,7 @@ services:
     volumes:
       - database:/var/lib/mysql:rw
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized"]
+      test: ["CMD", "healthcheck.sh", "--su-pluginuser", "--connect", "--innodb_initialized"]
       interval: 1s
       timeout: 10s
       retries: 60
