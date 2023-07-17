@@ -21,16 +21,6 @@ DATABASE_PORT=`docker inspect --type=container --format='{{(index .NetworkSettin
 WP_URL="http://host.docker.internal:${WP_PORT}"
 WP="docker-compose run --rm wpcli --url=${WP_URL}"
 
-# Wait for the database server:
-while ! docker-compose exec -T database /bin/bash -c 'mysqladmin ping --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --silent' | grep 'mysqld is alive' >/dev/null; do
-	echo 'Waiting for database server ping...'
-	sleep 1
-done
-while ! docker-compose exec -T database /bin/bash -c 'mysql --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --execute="SHOW DATABASES;"' | grep 'information_schema' >/dev/null; do
-	echo 'Waiting for database server query...'
-	sleep 1
-done
-
 # Wait for Selenium:
 while ! curl -sSL "http://localhost:${CHROME_PORT}/wd/hub/status" 2>&1 | grep '"ready": true' >/dev/null; do
 	echo 'Waiting for Selenium...'
