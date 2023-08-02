@@ -52,6 +52,7 @@ jobs:
         key: ${{ inputs.php }}-composer-${{ hashFiles('composer.json') }}
 
     - name: Debugging
+      shell: 'bash -x {0}'
       run: |
         php --version
         php -m
@@ -59,14 +60,16 @@ jobs:
         docker --version
 
     - name: Install Composer dependencies
-      run: |
-        if [ "${{ inputs.wp }}" == "latest" ]; then
-          composer install --dev --prefer-dist
-        elif [ "${{ inputs.wp }}" == "nightly" ]; then
-          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="dev-main"
-        else
-          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="~${{ inputs.wp }}.0"
-        fi
+      if: ${{ inputs.wp == 'latest' }}
+      run: composer install --dev --prefer-dist
+
+    - name: Install Composer dependencies with nightly core
+      if: ${{ inputs.wp == 'nightly' }}
+      run: composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full:"dev-main"
+
+    - name: Install Composer dependencies with specific core version
+      if: ${{ inputs.wp != 'latest' && inputs.wp != 'nightly' }}
+      run: composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full:"~${{ inputs.wp }}.0"
 
     - name: Setup node
       if: ${{ inputs.node }}
