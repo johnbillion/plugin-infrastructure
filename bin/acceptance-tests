@@ -14,12 +14,12 @@ export COMPOSE_PROJECT_NAME=${PLUGIN}
 echo "Starting up..."
 
 # Prep:
-docker-compose --profile acceptance-tests up -d
+docker compose --profile acceptance-tests up -d
 WP_PORT=`docker inspect --type=container --format='{{(index .NetworkSettings.Ports "80/tcp" 0).HostPort}}' ${PLUGIN}-server`
 CHROME_PORT=`docker inspect --type=container --format='{{(index .NetworkSettings.Ports "4444/tcp" 0).HostPort}}' ${PLUGIN}-chrome`
 DATABASE_PORT=`docker inspect --type=container --format='{{(index .NetworkSettings.Ports "3306/tcp" 0).HostPort}}' ${PLUGIN}-database`
 WP_URL="http://host.docker.internal:${WP_PORT}"
-WP="docker-compose run --rm wpcli --url=${WP_URL}"
+WP="docker compose run --rm wpcli --url=${WP_URL}"
 
 # Wait for Selenium:
 while ! curl -sSL "http://localhost:${CHROME_PORT}/wd/hub/status" 2>&1 | grep '"ready": true' >/dev/null; do
@@ -51,6 +51,6 @@ TEST_SITE_WEBDRIVER_PORT=$CHROME_PORT \
 	./vendor/bin/codecept run acceptance --steps "${CODECEPT_ARGS}"
 
 # Ciao:
-docker-compose stop chrome
+docker compose stop chrome
 
 echo "Acceptance tests complete."

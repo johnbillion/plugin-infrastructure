@@ -48,11 +48,12 @@ jobs:
 
     - name: Install Composer dependencies
       run: |
-        if [ "${{ inputs.wp }}" == "nightly" ]
-        then
-          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress="dev-nightly"
+        if [ "${{ inputs.wp }}" == "latest" ]; then
+          composer install --dev --prefer-dist
+        elif [ "${{ inputs.wp }}" == "nightly" ]; then
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="dev-main"
         else
-          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress="~${{ inputs.wp }}.0"
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="~${{ inputs.wp }}.0"
         fi
 
     - name: Setup node
@@ -71,7 +72,7 @@ jobs:
       run: composer test:start
 
     - name: Log WordPress version
-      run: docker-compose run --rm wpcli core version
+      run: docker compose run --rm wpcli core version
 
     - name: Run the tests
       run: composer test:acceptance
