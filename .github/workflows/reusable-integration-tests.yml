@@ -60,10 +60,12 @@ jobs:
 
     - name: Install Composer dependencies
       run: |
-        if [[ "${{ inputs.wp }}" =~ "[0-9]\.[0-9]" ]]; then
-          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="~${{ inputs.wp }}.0"
+        if [ "${{ inputs.wp }}" == "latest" ]; then
+          composer install --dev --prefer-dist
+        elif [ "${{ inputs.wp }}" == "nightly" ]; then
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="dev-main"
         else
-          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="${{ inputs.wp }}"
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="~${{ inputs.wp }}.0"
         fi
 
     - name: Setup node
