@@ -5,7 +5,7 @@ on:
   pull_request: null
   push:
     branches:
-    - master
+    - trunk
 permissions:
   contents: read
 concurrency:
