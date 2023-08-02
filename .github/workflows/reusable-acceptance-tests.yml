@@ -48,11 +48,10 @@ jobs:
 
     - name: Install Composer dependencies
       run: |
-        if [ "${{ inputs.wp }}" == "nightly" ]
-        then
-          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress="dev-nightly"
-        else
+        if [[ "${{ inputs.wp }}" =~ "[0-9]\.[0-9]" ]]; then
           composer require --dev --update-with-dependencies --prefer-dist roots/wordpress="~${{ inputs.wp }}.0"
+        else
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress="${{ inputs.wp }}"
         fi
 
     - name: Setup node
