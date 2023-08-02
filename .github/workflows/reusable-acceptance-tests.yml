@@ -70,7 +70,7 @@ jobs:
       run: composer test:start
 
     - name: Log WordPress version
-      run: docker-compose run --rm wpcli core version
+      run: docker compose run --rm wpcli core version
 
     - name: Run the tests
       run: composer test:acceptance

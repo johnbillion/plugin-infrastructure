@@ -57,7 +57,6 @@ jobs:
         php -m
         composer --version
         docker --version
-        docker-compose --version
 
     - name: Install Composer dependencies
       run: |
