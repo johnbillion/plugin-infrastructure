@@ -6,7 +6,6 @@ set -eo pipefail
 
 # Args
 PLUGIN=${PWD##*/}
-CODECEPT_ARGS=$1
 
 # Environment variables
 export COMPOSE_PROJECT_NAME=${PLUGIN}
@@ -52,6 +51,21 @@ $WP core install \
 	--exec="mysqli_report( MYSQLI_REPORT_OFF );"
 echo "Home URL: $WP_URL"
 $WP plugin activate ${PLUGIN}
+
+CODECEPT_ARGS=""
+
+for flag in "$@"; do
+	# If the flag starts with `--cli=`, then we want to run the command:
+	if [[ $flag == --cli=* ]]; then
+		# Remove the prefix:
+		cli_command="${flag/--cli=/}"
+		# Run the command:
+		$WP $cli_command
+	# Otherwise, we want to pass the flag to Codeception:
+	else
+		CODECEPT_ARGS="$CODECEPT_ARGS $flag"
+	fi
+done
 
 # Run the acceptance tests:
 echo "Running tests..."
