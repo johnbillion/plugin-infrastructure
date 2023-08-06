@@ -59,11 +59,11 @@ $WP plugin activate ${PLUGIN}
 
 CODECEPT_ARGS=""
 
-for flag in "$@"; do
+for flag; do
 	# If the flag starts with `--cli=`, then we want to run the command:
 	if [[ $flag == --cli=* ]]; then
 		# Remove the prefix:
-		cli_command="${flag/--cli=/}"
+		cli_command="${flag#--cli=}"
 		# Run the command:
 		$WP $cli_command
 	# Otherwise, we want to pass the flag to Codeception:
