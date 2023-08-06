@@ -1,0 +1,104 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+
+name: Deploy Tag
+on:
+  workflow_call:
+    inputs:
+      plugin:
+        required: true
+        type: string
+      readme:
+        required: true
+        type: string
+    secrets:
+      WPORG_SVN_USERNAME:
+        required: true
+      WPORG_SVN_PASSWORD:
+        required: true
+
+jobs:
+  wordpress:
+    name: WordPress.org
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    environment:
+      name: WordPress.org
+      url: "https://wordpress.org/plugins/${{ inputs.plugin }}/"
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup node
+      uses: actions/setup-node@v3
+      with:
+        node-version-file: '.nvmrc'
+        cache: npm
+
+    - name: Install Node Dependencies
+      run: npm ci
+
+    - name: Install Composer Dependencies
+      run: composer install
+
+    - name: Populate Changelog
+      run: |
+        node vendor/johnbillion/plugin-infrastructure/bin/changelog.js ${{ inputs.readme }}
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add ${{ inputs.readme }}
+        git commit -m "Readme"
+      env:
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: WordPress Plugin Deploy
+      uses: 10up/action-wordpress-plugin-deploy@2.1.1
+      env:
+        SVN_USERNAME: ${{ secrets.WPORG_SVN_USERNAME }}
+        SVN_PASSWORD: ${{ secrets.WPORG_SVN_PASSWORD }}
+        README_NAME: ${{ inputs.readme }}
+
+  github:
+    name: GitHub Milestones
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    timeout-minutes: 10
+    steps:
+    - name: Get next versions
+      id: semvers
+      uses: WyriHaximus/github-action-next-semvers@v1.0
+      with:
+        version: ${{ github.event.release.tag_name }}
+
+    - name: Create next patch milestone
+      uses: octokit/request-action@v2.x
+      with:
+        route: POST /repos/:repository/milestones
+        repository: ${{ github.repository }}
+        title: ${{ steps.semvers.outputs.patch }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      continue-on-error: true
+
+    - name: Create next minor milestone
+      uses: octokit/request-action@v2.x
+      with:
+        route: POST /repos/:repository/milestones
+        repository: ${{ github.repository }}
+        title: ${{ steps.semvers.outputs.minor }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      continue-on-error: true
+
+    - name: Create next major milestone
+      uses: octokit/request-action@v2.x
+      with:
+        route: POST /repos/:repository/milestones
+        repository: ${{ github.repository }}
+        title: ${{ steps.semvers.outputs.major }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      continue-on-error: true

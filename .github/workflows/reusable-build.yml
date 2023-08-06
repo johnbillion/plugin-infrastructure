@@ -2,7 +2,12 @@
 
 name: Build
 on:
-  workflow_call: null
+  workflow_call:
+    inputs:
+      node:
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   build:
@@ -41,6 +46,7 @@ jobs:
       run: composer run build-vendor
 
     - name: Build Assets
+      if: ${{ inputs.node }}
       run: npm run build
 
     - name: Setup version

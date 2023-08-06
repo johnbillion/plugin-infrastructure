@@ -1,0 +1,17 @@
+{
+	"name": "plugin-infrastructure",
+	"description": "Reusable infrastructure relating to testing, building, and deploying my WordPress plugins",
+	"version": "1.0.0",
+	"license": "MIT",
+	"private": true,
+	"author": "John Blackbourn",
+	"repository": "johnbillion/plugin-infrastructure",
+	"engines": {
+		"node": ">=16"
+	},
+	"dependencies": {
+		"@actions/github": "^2",
+		"replace-in-file": "^5",
+		"semver": "^7"
+	}
+}

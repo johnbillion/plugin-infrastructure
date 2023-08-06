@@ -22,6 +22,7 @@
 		"ergebnis/composer-normalize": "^2"
 	},
 	"bin": [
+		"bin/acceptance-tests",
 		"bin/build-vendor",
 		"bin/integration-tests"
 	],

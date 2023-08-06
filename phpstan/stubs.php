@@ -12,7 +12,6 @@ define( 'WP_CONTENT_DIR', '' );
 define( 'WP_MEMORY_LIMIT', '' );
 define( 'WP_PLUGIN_DIR', '' );
 define( 'WPINC', '' );
-define( 'WP_DEFAULT_THEME', '' );
 
 define( 'AUTH_COOKIE', '' );
 define( 'COOKIE_DOMAIN', '' );

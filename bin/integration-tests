@@ -8,15 +8,18 @@ set -eo pipefail
 PLUGIN=${PWD##*/}
 CODECEPT_ARGS=$1
 
+# Environment variables
+export COMPOSE_PROJECT_NAME=${PLUGIN}
+
 echo "Starting up..."
 
-# Wait for MariaDB:
-while ! docker-compose exec -T database /bin/bash -c 'mysqladmin ping --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --silent' | grep 'mysqld is alive' >/dev/null; do
-	echo 'Waiting for MariaDB ping...'
+# Wait for the database server:
+while ! docker compose exec -T database /bin/bash -c 'mysqladmin ping --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --silent' | grep 'mysqld is alive' >/dev/null; do
+	echo 'Waiting for database server ping...'
 	sleep 1
 done
-while ! docker-compose exec -T database /bin/bash -c 'mysql --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --execute="SHOW DATABASES;"' | grep 'information_schema' >/dev/null; do
-	echo 'Waiting for MariaDB query...'
+while ! docker compose exec -T database /bin/bash -c 'mysql --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --execute="SHOW DATABASES;"' | grep 'information_schema' >/dev/null; do
+	echo 'Waiting for database server query...'
 	sleep 1
 done
 
@@ -24,14 +27,18 @@ done
 echo "Running tests..."
 
 # Why are these sent to /dev/null? See https://github.com/docker/compose/issues/8833
-docker-compose exec \
+docker compose exec \
+	--env COMPOSE_PROJECT_NAME \
 	-T \
 	--workdir "/var/www/html/wp-content/plugins/${PLUGIN}" php \
-	./vendor/bin/codecept run integration --env singlesite --skip-group ms-required --debug "${CODECEPT_ARGS}" \
+	./vendor/bin/codecept run integration --env singlesite --skip-group ms-required "${CODECEPT_ARGS}" \
 	< /dev/null
 
-docker-compose exec \
+docker compose exec \
+	--env COMPOSE_PROJECT_NAME \
 	-T \
 	--workdir "/var/www/html/wp-content/plugins/${PLUGIN}" php \
-	./vendor/bin/codecept run integration --env multisite --skip-group ms-excluded --debug "${CODECEPT_ARGS}" \
+	./vendor/bin/codecept run integration --env multisite --skip-group ms-excluded "${CODECEPT_ARGS}" \
 	< /dev/null
+
+echo "Integration tests complete."

@@ -10,6 +10,10 @@ on:
       php:
         required: true
         type: string
+      node:
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   test:
@@ -53,22 +57,30 @@ jobs:
         php -m
         composer --version
         docker --version
-        docker-compose --version
 
     - name: Install Composer dependencies
       run: |
-        composer require --dev --update-with-dependencies --prefer-dist roots/wordpress="${{ inputs.wp }}"
+        if [ "${{ inputs.wp }}" == "latest" ]; then
+          composer install --dev --prefer-dist
+        elif [ "${{ inputs.wp }}" == "nightly" ]; then
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="dev-main"
+        else
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="~${{ inputs.wp }}.0"
+        fi
 
     - name: Setup node
+      if: ${{ inputs.node }}
       uses: actions/setup-node@v3
       with:
         node-version-file: '.nvmrc'
         cache: npm
 
     - name: Install node dependencies
+      if: ${{ inputs.node }}
       run: npm ci
 
     - name: Run the build
+      if: ${{ inputs.node }}
       run: npm run build
 
     - name: Start Docker environment
@@ -77,5 +89,5 @@ jobs:
     - name: Log running Docker containers
       run: docker ps -a
 
-    - name: Run unit tests
+    - name: Run integration tests
       run: composer test:integration

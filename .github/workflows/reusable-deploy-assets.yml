@@ -1,0 +1,83 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+
+name: Deploy Assets
+on:
+  workflow_call:
+    inputs:
+      plugin:
+        required: true
+        type: string
+      readme:
+        required: true
+        type: string
+      node:
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      WPORG_SVN_USERNAME:
+        required: true
+      WPORG_SVN_PASSWORD:
+        required: true
+
+jobs:
+  wordpress:
+    name: WordPress.org
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0
+          tools: composer:v2
+          coverage: none
+          ini-file: development
+        env:
+          fail-fast: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate autoload file
+        run: |
+          composer install
+          composer run build-vendor
+
+      - name: Build Assets
+        if: ${{ inputs.node }}
+        run: npm run build
+
+      - name: Populate Changelog
+        run: node vendor/johnbillion/plugin-infrastructure/bin/changelog.js ${{ inputs.readme }}
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add -f assets/*
+          git add ${{ inputs.readme }}
+          git add -f vendor/autoload.php
+          git add -f vendor/composer/*
+          git commit -m "Assets"
+
+      - name: WordPress Plugin Deploy
+        uses: 10up/action-wordpress-plugin-asset-update@1.4.1
+        env:
+          SVN_USERNAME: ${{ secrets.WPORG_SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.WPORG_SVN_PASSWORD }}
+          README_NAME: ${{ inputs.readme }}
