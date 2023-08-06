@@ -50,6 +50,11 @@ $WP core install \
 	--skip-email \
 	--exec="mysqli_report( MYSQLI_REPORT_OFF );"
 echo "Home URL: $WP_URL"
+
+# Set a predictable permalink structure:
+$WP rewrite structure '/%postname%/'
+
+# Activate the plugin under test:
 $WP plugin activate ${PLUGIN}
 
 CODECEPT_ARGS=""
