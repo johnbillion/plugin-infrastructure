@@ -10,6 +10,10 @@ on:
       readme:
         required: true
         type: string
+      node:
+        required: false
+        type: boolean
+        default: true
     secrets:
       WPORG_SVN_USERNAME:
         required: true
@@ -53,6 +57,7 @@ jobs:
           composer run build-vendor
 
       - name: Build Assets
+        if: ${{ inputs.node }}
         run: npm run build
 
       - name: Populate Changelog
