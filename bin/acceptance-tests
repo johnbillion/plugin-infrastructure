@@ -14,11 +14,14 @@ echo "Starting up..."
 
 # Prep:
 docker compose --profile acceptance-tests up -d
-WP_PORT=`docker inspect --type=container --format='{{(index .NetworkSettings.Ports "80/tcp" 0).HostPort}}' ${PLUGIN}-server`
-CHROME_PORT=`docker inspect --type=container --format='{{(index .NetworkSettings.Ports "4444/tcp" 0).HostPort}}' ${PLUGIN}-chrome`
-DATABASE_PORT=`docker inspect --type=container --format='{{(index .NetworkSettings.Ports "3306/tcp" 0).HostPort}}' ${PLUGIN}-database`
+WP_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "80/tcp" 0).HostPort}}' ${PLUGIN}-server)"
+CHROME_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "4444/tcp" 0).HostPort}}' ${PLUGIN}-chrome)"
+DATABASE_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "3306/tcp" 0).HostPort}}' ${PLUGIN}-database)"
 WP_URL="http://host.docker.internal:${WP_PORT}"
-WP="docker compose run --rm wpcli --url=${WP_URL}"
+
+wp() {
+	docker compose run --rm wpcli --url="${WP_URL}" "$@"
+}
 
 # Wait for the database server:
 while ! docker compose exec -T database /bin/bash -c 'mysqladmin ping --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --silent' | grep 'mysqld is alive' >/dev/null; do
@@ -38,11 +41,11 @@ done
 
 # Reset or install the test database:
 echo "Installing database..."
-$WP db reset --yes
+wp db reset --yes
 
 # Install WordPress:
 echo "Installing WordPress..."
-$WP core install \
+wp core install \
 	--title="${PLUGIN}" \
 	--admin_user="admin" \
 	--admin_password="admin" \
@@ -52,10 +55,10 @@ $WP core install \
 echo "Home URL: $WP_URL"
 
 # Set a predictable permalink structure:
-$WP rewrite structure '/%postname%/'
+wp rewrite structure '/%postname%/'
 
 # Activate the plugin under test:
-$WP plugin activate ${PLUGIN}
+wp plugin activate ${PLUGIN}
 
 CODECEPT_ARGS=""
 
@@ -65,7 +68,7 @@ for flag in "$@"; do
 		# Remove the prefix:
 		cli_command="${flag/--cli=/}"
 		# Run the command:
-		$WP $cli_command
+		wp $cli_command
 	# Otherwise, we want to pass the flag to Codeception:
 	else
 		CODECEPT_ARGS="$CODECEPT_ARGS $flag"
