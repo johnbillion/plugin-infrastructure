@@ -89,10 +89,10 @@ jobs:
       run: npm run build
 
     - name: Start Docker environment
-      run: composer test:start
+      run: composer run test:start -- --quiet-pull
 
     - name: Log running Docker containers
       run: docker ps -a
 
     - name: Run integration tests
-      run: composer test:integration
+      run: composer run test:integration
