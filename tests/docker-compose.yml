@@ -21,6 +21,8 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME}-php
     restart: always
     environment:
+      PHP_FPM_UID: ${PHP_FPM_UID-1000}
+      PHP_FPM_GID: ${PHP_FPM_GID-1000}
       WORDPRESS_DB_HOST: database
       WORDPRESS_DB_USER: pluginuser
       WORDPRESS_DB_PASSWORD: pluginpass
@@ -53,6 +55,8 @@ services:
     image: wordpressdevelop/cli:${LOCAL_PHP-8.1}-fpm
     container_name: ${COMPOSE_PROJECT_NAME}-wpcli
     environment:
+      PHP_FPM_UID: ${PHP_FPM_UID-1000}
+      PHP_FPM_GID: ${PHP_FPM_GID-1000}
       WORDPRESS_DB_HOST: database
       WORDPRESS_DB_USER: pluginuser
       WORDPRESS_DB_PASSWORD: pluginpass
