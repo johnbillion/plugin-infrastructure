@@ -15,6 +15,8 @@ services:
       - ./vendor/wordpress/wordpress:/var/www/html/:rw
       - ./vendor/johnbillion/plugin-infrastructure/tests/wp-config.php:/var/www/html/wp-config.php
       - ./:/var/www/html/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   php:
     image: wordpressdevelop/php:${LOCAL_PHP-8.1}-fpm
@@ -36,6 +38,8 @@ services:
       - ./vendor/johnbillion/plugin-infrastructure/tests/wp-config.php:/var/www/html/wp-config.php
       - ./vendor/johnbillion/plugin-infrastructure/tests/php-config.ini:/usr/local/etc/php/conf.d/php-config.ini
       - ./:/var/www/html/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   database:
     image: mariadb:10.5.8
@@ -50,6 +54,8 @@ services:
       MYSQL_RANDOM_ROOT_PASSWORD: '1'
     volumes:
       - database:/var/lib/mysql:rw
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   wpcli:
     image: wordpressdevelop/cli:${LOCAL_PHP-8.1}-fpm
@@ -70,6 +76,8 @@ services:
       - ./vendor/johnbillion/plugin-infrastructure/tests/wp-config.php:/var/www/wp-config.php
       - ./vendor/johnbillion/plugin-infrastructure/tests/php-config.ini:/usr/local/etc/php/conf.d/php-config.ini
       - ./:/var/www/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   chrome:
     image: seleniarm/standalone-chromium
