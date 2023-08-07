@@ -6,7 +6,6 @@ set -eo pipefail
 
 # Args
 PLUGIN=${PWD##*/}
-CODECEPT_ARGS=$1
 
 # Environment variables
 export COMPOSE_PROJECT_NAME=${PLUGIN}
@@ -15,11 +14,14 @@ echo "Starting up..."
 
 # Prep:
 docker compose --profile acceptance-tests up -d
-WP_PORT=`docker inspect --type=container --format='{{(index .NetworkSettings.Ports "80/tcp" 0).HostPort}}' ${PLUGIN}-server`
-CHROME_PORT=`docker inspect --type=container --format='{{(index .NetworkSettings.Ports "4444/tcp" 0).HostPort}}' ${PLUGIN}-chrome`
-DATABASE_PORT=`docker inspect --type=container --format='{{(index .NetworkSettings.Ports "3306/tcp" 0).HostPort}}' ${PLUGIN}-database`
+WP_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "80/tcp" 0).HostPort}}' ${PLUGIN}-server)"
+CHROME_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "4444/tcp" 0).HostPort}}' ${PLUGIN}-chrome)"
+DATABASE_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "3306/tcp" 0).HostPort}}' ${PLUGIN}-database)"
 WP_URL="http://host.docker.internal:${WP_PORT}"
-WP="docker compose run --rm wpcli --url=${WP_URL}"
+
+wp() {
+	docker compose run --rm wpcli --url="${WP_URL}" "$@"
+}
 
 # Wait for Selenium:
 while ! curl -sSL "http://localhost:${CHROME_PORT}/wd/hub/status" 2>&1 | grep '"ready": true' >/dev/null; do
@@ -29,11 +31,11 @@ done
 
 # Reset or install the test database:
 echo "Installing database..."
-$WP db reset --yes
+wp db reset --yes
 
 # Install WordPress:
 echo "Installing WordPress..."
-$WP core install \
+wp core install \
 	--title="${PLUGIN}" \
 	--admin_user="admin" \
 	--admin_password="admin" \
@@ -41,7 +43,27 @@ $WP core install \
 	--skip-email \
 	--exec="mysqli_report( MYSQLI_REPORT_OFF );"
 echo "Home URL: $WP_URL"
-$WP plugin activate ${PLUGIN}
+
+# Set a predictable permalink structure:
+wp rewrite structure '/%postname%/'
+
+# Activate the plugin under test:
+wp plugin activate ${PLUGIN}
+
+CODECEPT_ARGS=""
+
+for flag; do
+	# If the flag starts with `--cli=`, then we want to run the command:
+	if [[ $flag == --cli=* ]]; then
+		# Remove the prefix:
+		cli_command="${flag#--cli=}"
+		# Run the command:
+		wp $cli_command
+	# Otherwise, we want to pass the flag to Codeception:
+	else
+		CODECEPT_ARGS="$CODECEPT_ARGS $flag"
+	fi
+done
 
 # Run the acceptance tests:
 echo "Running tests..."
