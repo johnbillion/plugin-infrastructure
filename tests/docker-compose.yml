@@ -11,9 +11,9 @@ services:
     depends_on:
       - php
     volumes:
-      - ./vendor/johnbillion/plugin-infrastructure/tests/nginx.conf:/etc/nginx/templates/default.conf.template
       - ./vendor/wordpress/wordpress:/var/www/html/:rw
       - ./vendor/johnbillion/plugin-infrastructure/tests/wp-config.php:/var/www/html/wp-config.php
+      - ./vendor/johnbillion/plugin-infrastructure/tests/nginx.conf:/etc/nginx/templates/default.conf.template
       - ./:/var/www/html/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
 
   php:
