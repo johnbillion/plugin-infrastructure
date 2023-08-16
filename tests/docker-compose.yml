@@ -50,8 +50,6 @@ services:
       MYSQL_RANDOM_ROOT_PASSWORD: '1'
     volumes:
       - database:/var/lib/mysql:rw
-    extra_hosts:
-      - host.docker.internal:host-gateway
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 1s
@@ -87,8 +85,6 @@ services:
       - server
     ports:
       - 4444
-    extra_hosts:
-      - host.docker.internal:host-gateway
     shm_size: 2gb
 
 volumes:
