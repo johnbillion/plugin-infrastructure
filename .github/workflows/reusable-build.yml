@@ -8,6 +8,10 @@ on:
         required: false
         type: boolean
         default: true
+      vendor:
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   build:
@@ -20,12 +24,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Configure environment variables
-      run: |
-        echo "PHP_FPM_UID=$(id -u)" >> $GITHUB_ENV
-        echo "PHP_FPM_GID=$(id -g)" >> $GITHUB_ENV
-
     - name: Install PHP
+      if: ${{ inputs.vendor }}
       uses: shivammathur/setup-php@v2
       with:
         php-version: 8.0
@@ -46,13 +46,18 @@ jobs:
       run: npm ci
 
     - name: Generate autoload file
+      if: ${{ inputs.vendor }}
       run: |
         composer install
         composer run build-vendor
+        git add -f vendor/autoload.php
+        git add -f vendor/composer/*
 
     - name: Build Assets
       if: ${{ inputs.node }}
-      run: npm run build
+      run: |
+        npm run build
+        git add -f assets/*
 
     - name: Setup version
       run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
@@ -63,9 +68,6 @@ jobs:
         git config user.name github-actions
         git config user.email github-actions@github.com
         git checkout -b "release-$VERSION"
-        git add -f assets/*
-        git add -f vendor/autoload.php
-        git add -f vendor/composer/*
         git commit -m "Release $VERSION"
         git tag "$VERSION"
         git push --tags
