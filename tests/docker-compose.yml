@@ -85,6 +85,8 @@ services:
       - server
     ports:
       - 4444
+    extra_hosts:
+      - host.docker.internal:host-gateway
     shm_size: 2gb
 
 volumes:
