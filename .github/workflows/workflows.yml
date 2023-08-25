@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 
-name: Actions
+name: Workflows
 on:
   pull_request: null
   push:
@@ -25,4 +25,4 @@ jobs:
     - name: Run actionlint
       uses: docker://rhysd/actionlint:latest
       with:
-        args: "-color -verbose -shellcheck ''"
+        args: "-color -verbose -shellcheck="
