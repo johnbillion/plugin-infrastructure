@@ -1,8 +1,8 @@
 # Plugin Infrastructure
 
-Reusable infrastructure relating to testing, building, and deploying my WordPress plugins (see the "Used by" section in the sidebar).
+Reusable infrastructure relating to testing, building, and deploying my WordPress plugins (see the "Used by" section below).
 
-Provided without support, warranty, backwards compatibility, or support for any plugin that isn't one of mine.
+Provided without support, warranty, guarantee, backwards compatibility, fitness for purpose, resilience, safety, sanity, beauty, or support for any plugin that isn't one of mine.
 
 ## Used by
 
