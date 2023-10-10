@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# -e          Exit immediately if a pipeline returns a non-zero status
+# -o pipefail Produce a failure return code if any command errors
+set -eo pipefail
+
+# Args
+PLUGIN=${PWD##*/}
+
+# Environment variables
+export COMPOSE_PROJECT_NAME=${PLUGIN}
+
+docker compose up -d
