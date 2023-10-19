@@ -18,13 +18,22 @@ async function run() {
 		semver.rcompare( semver.coerce( a.tag_name ), semver.coerce( b.tag_name ) )
 	);
 
-	let changelog = sorted.reduce( ( changelog, release ) =>
-		`${changelog}
+	let changelog = sorted.reduce( ( changelog, release ) => {
+		const date = new Date( release.published_at ).toLocaleDateString(
+			'en-gb',
+			{
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric'
+			}
+		);
 
-### ${release.tag_name} ###
+		return `${changelog}
+
+### ${release.tag_name} (${date}) ###
 
 ${release.body}`
-	, '## Changelog ##' );
+	} , '## Changelog ##' );
 
 	try {
 		const results = await replace( {
