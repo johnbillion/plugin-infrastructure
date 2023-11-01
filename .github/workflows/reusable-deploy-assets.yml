@@ -22,6 +22,11 @@ on:
         type: boolean
         default: true
         description: Whether to generate the Composer autoloader files and add them to the commit
+      assets_dir:
+        required: false
+        type: string
+        default: .wordpress-org
+        description: The directory containing the assets to be deployed to WordPress.org
     secrets:
       WPORG_SVN_USERNAME:
         required: true
@@ -92,3 +97,4 @@ jobs:
         env:
           SVN_USERNAME: ${{ secrets.WPORG_SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.WPORG_SVN_PASSWORD }}
+          ASSETS_DIR: ${{ inputs.assets_dir }}

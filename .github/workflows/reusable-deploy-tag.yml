@@ -12,6 +12,11 @@ on:
         required: true
         type: string
         description: The plugin readme file name, either readme.md or readme.txt
+      assets_dir:
+        required: false
+        type: string
+        default: .wordpress-org
+        description: The directory containing the assets to be deployed to WordPress.org
     secrets:
       WPORG_SVN_USERNAME:
         required: true
@@ -60,6 +65,7 @@ jobs:
       env:
         SVN_USERNAME: ${{ secrets.WPORG_SVN_USERNAME }}
         SVN_PASSWORD: ${{ secrets.WPORG_SVN_PASSWORD }}
+        ASSETS_DIR: ${{ inputs.assets_dir }}
 
   github:
     name: GitHub Milestones
