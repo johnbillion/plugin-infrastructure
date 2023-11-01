@@ -7,13 +7,16 @@ on:
       wp:
         required: true
         type: string
+        description: WordPress version to use in major.minor format (e.g. 6.4), or "latest" or "nightly"
       php:
         required: true
         type: string
+        description: PHP version to use in major.minor format (e.g. 8.0)
       node:
         required: false
         type: boolean
         default: true
+        description: Whether to run the Node build step
 
 jobs:
   test:

@@ -7,17 +7,21 @@ on:
       plugin:
         required: true
         type: string
+        description: The plugin slug
       readme:
         required: true
         type: string
+        description: The plugin readme file name, either readme.md or readme.txt
       node:
         required: false
         type: boolean
         default: true
+        description: Whether to run the Node build step and add the assets to the commit
       vendor:
         required: false
         type: boolean
         default: true
+        description: Whether to generate the Composer autoloader files and add them to the commit
     secrets:
       WPORG_SVN_USERNAME:
         required: true

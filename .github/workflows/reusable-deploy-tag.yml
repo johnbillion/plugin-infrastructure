@@ -7,9 +7,11 @@ on:
       plugin:
         required: true
         type: string
+        description: The plugin slug
       readme:
         required: true
         type: string
+        description: The plugin readme file name, either readme.md or readme.txt
     secrets:
       WPORG_SVN_USERNAME:
         required: true
