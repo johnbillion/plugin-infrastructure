@@ -58,7 +58,6 @@ jobs:
       env:
         SVN_USERNAME: ${{ secrets.WPORG_SVN_USERNAME }}
         SVN_PASSWORD: ${{ secrets.WPORG_SVN_PASSWORD }}
-        README_NAME: ${{ inputs.readme }}
 
   github:
     name: GitHub Milestones
