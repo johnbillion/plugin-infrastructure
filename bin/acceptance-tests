@@ -13,7 +13,6 @@ export COMPOSE_PROJECT_NAME=${PLUGIN}
 echo "Starting up..."
 
 # Prep:
-docker compose --profile acceptance-tests up -d --quiet-pull
 WP_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "80/tcp" 0).HostPort}}' ${PLUGIN}-server)"
 CHROME_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "4444/tcp" 0).HostPort}}' ${PLUGIN}-chrome)"
 DATABASE_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "3306/tcp" 0).HostPort}}' ${PLUGIN}-database)"

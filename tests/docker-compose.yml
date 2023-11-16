@@ -74,8 +74,6 @@ services:
   chrome:
     image: seleniarm/standalone-chromium
     container_name: ${COMPOSE_PROJECT_NAME}-chrome
-    profiles:
-      - acceptance-tests
     depends_on:
       - server
     ports:
