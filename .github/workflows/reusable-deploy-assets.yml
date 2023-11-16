@@ -62,13 +62,15 @@ jobs:
           node-version-file: '.nvmrc'
           cache: npm
 
-      - name: Install Dependencies
+      - name: Install Node Dependencies
         run: npm ci
+
+      - name: Install Composer Dependencies
+        run: composer install
 
       - name: Generate autoload file
         if: ${{ inputs.vendor }}
         run: |
-          composer install
           composer run build-vendor
           git add -f vendor/autoload.php
           git add -f vendor/composer/*
