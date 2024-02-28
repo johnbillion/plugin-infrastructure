@@ -18,7 +18,7 @@ async function run() {
 		semver.rcompare( semver.coerce( a.tag_name ), semver.coerce( b.tag_name ) )
 	);
 
-	let changelog = sorted.reduce( ( changelog, release ) => {
+	let changelog = sorted.map( ( release ) => {
 		const date = new Date( release.published_at ).toLocaleDateString(
 			'en-gb',
 			{
@@ -29,19 +29,25 @@ async function run() {
 		);
 
 		return [
-			`${changelog}`,
-			'',
 			`### ${release.tag_name} (${date}) ###`,
 			'',
 			`${release.body}`,
 		].join('\n');
-  	} , '## Changelog ##' );
+	} );
+
+	// Show a maximum of 15 releases
+	changelog = changelog.slice( 0, 15 );
+
+	changelog.push(
+		'### Earlier versions ###',
+		`For the changelog of earlier versions, <a href="https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/releases">please refer to the releases page on GitHub</a>.`,
+	);
 
 	try {
 		const results = await replace( {
 			files: filename,
 			from: '<!-- changelog -->',
-			to: changelog,
+			to: changelog.join( '\n\n' ),
 		} );
 
 		if ( results.filter( result => ! result.hasChanged ).length ) {
