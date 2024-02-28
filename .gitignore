@@ -1,5 +1,6 @@
 # Files
-composer.lock
+/composer.lock
 
 # Directories
-vendor
+/vendor
+/node_modules
