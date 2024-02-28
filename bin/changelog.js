@@ -24,16 +24,18 @@ async function run() {
 			{
 				year: 'numeric',
 				month: 'long',
-				day: 'numeric'
+				day: 'numeric',
 			}
 		);
 
-		return `${changelog}
-
-### ${release.tag_name} (${date}) ###
-
-${release.body}`
-	} , '## Changelog ##' );
+		return [
+			`${changelog}`,
+			'',
+			`### ${release.tag_name} (${date}) ###`,
+			'',
+			`${release.body}`,
+		].join('\n');
+  	} , '## Changelog ##' );
 
 	try {
 		const results = await replace( {
