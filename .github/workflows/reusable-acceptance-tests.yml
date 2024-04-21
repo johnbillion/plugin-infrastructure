@@ -64,9 +64,9 @@ jobs:
         elif [ "${{ inputs.wp }}" == "nightly" ]; then
           composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="dev-main"
         elif [[ "${{ inputs.wp }}" =~ ^[0-9]\.[0-9]$ ]]; then
-          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="~${{ inputs.wp }}.0"
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="~${{ inputs.wp }}.0" php-stubs/wordpress-stubs="~${{ inputs.wp }}.0"
         else
-          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="${{ inputs.wp }}"
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="${{ inputs.wp }}" php-stubs/wordpress-stubs="${{ inputs.wp }}"
         fi
 
     - name: Setup node
