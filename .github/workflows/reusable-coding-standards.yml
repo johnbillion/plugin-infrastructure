@@ -4,6 +4,11 @@ name: Coding Standards
 on:
   workflow_call:
     inputs:
+      wp:
+        required: false
+        default: latest
+        type: string
+        description: WordPress version to use in major.minor format (e.g. 6.4), or "latest" or "nightly"
       php:
         required: true
         type: string
@@ -11,7 +16,7 @@ on:
 
 jobs:
   test:
-    name: PHP / PHP ${{ inputs.php }}
+    name: WP ${{ inputs.wp }} / PHP ${{ inputs.php }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -61,7 +66,14 @@ jobs:
       run: composer validate --strict --no-check-lock
 
     - name: Install dependencies
-      run: composer install --prefer-dist
+      run: |
+        if [ "${{ inputs.wp }}" == "latest" ]; then
+          composer install --dev --prefer-dist
+        elif [ "${{ inputs.wp }}" == "nightly" ]; then
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="dev-main"
+        else
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="~${{ inputs.wp }}.0" php-stubs/wordpress-stubs="~${{ inputs.wp }}.0"
+        fi
 
     - name: Run static analysis
       run: composer test:phpstan
