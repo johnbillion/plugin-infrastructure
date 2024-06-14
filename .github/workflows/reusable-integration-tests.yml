@@ -69,6 +69,10 @@ jobs:
       run: |
         if [ "${{ inputs.wp }}" == "latest" ]; then
           composer install --dev --prefer-dist
+        elif [ "${{ inputs.wp }}" == "latest-1" ]; then
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="~6.4.0"
+        elif [ "${{ inputs.wp }}" == "latest-2" ]; then
+          composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="~6.3.0"
         elif [ "${{ inputs.wp }}" == "nightly" ]; then
           composer require --dev --update-with-dependencies --prefer-dist roots/wordpress-full="dev-main"
         else
