@@ -87,6 +87,11 @@ jobs:
     - name: Start Docker environment
       run: composer run test:start -- --quiet-pull
 
+    - name: Display container logs on failure
+      if: ${{ failure() }}
+      run: |
+        docker logs ${PWD##*/}-database
+
     - name: Log WordPress version
       run: docker compose run --rm wpcli core version
 
