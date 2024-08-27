@@ -36,7 +36,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Initialise Honeycomb.io
-      uses: honeycombio/gha-buildevents@v2
+      uses: honeycombio/gha-buildevents@v3
       with:
         apikey: ${{ secrets.BUILDEVENT_APIKEY }}
         dataset: gha-${{ github.event.repository.name }}-integration
