@@ -16,6 +16,10 @@ on:
         required: true
         type: boolean
         description: Whether to run the Node build step
+    secrets:
+      BUILDEVENT_APIKEY:
+        required: true
+        description: API key for Honeycomb.io
 
 jobs:
   test:
