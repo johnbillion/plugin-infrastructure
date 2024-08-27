@@ -31,6 +31,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Initialise Honeycomb.io
+      uses: honeycombio/gha-buildevents@v2
+      with:
+        apikey: ${{ secrets.BUILDEVENT_APIKEY }}
+        dataset: gha-buildevents_integration
+        status: ${{ job.status }}
+        matrix-key: wp-${{ inputs.wp }}-PHP-${{ inputs.php }}
+
     - name: Configure environment variables
       run: | #shell
         echo "PHP_FPM_UID=$(id -u)" >> $GITHUB_ENV
