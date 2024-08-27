@@ -22,7 +22,7 @@ on:
         description: API key for Honeycomb.io
 
 jobs:
-  test:
+  acceptance-tests:
     name: WP ${{ inputs.wp }} / PHP ${{ inputs.php }}
     runs-on: ubuntu-latest
     permissions:
@@ -39,7 +39,7 @@ jobs:
       uses: honeycombio/gha-buildevents@v2
       with:
         apikey: ${{ secrets.BUILDEVENT_APIKEY }}
-        dataset: gha-buildevents_integration
+        dataset: gha-${{ github.event.repository.name }}-acceptance
         status: ${{ job.status }}
         matrix-key: wp-${{ inputs.wp }}-PHP-${{ inputs.php }}
 

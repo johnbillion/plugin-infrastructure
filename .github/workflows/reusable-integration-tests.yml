@@ -18,7 +18,7 @@ on:
         description: Whether to run the Node build step
 
 jobs:
-  test:
+  integration-tests:
     name: WP ${{ inputs.wp }} / PHP ${{ inputs.php }}
     runs-on: ubuntu-latest
     permissions:
