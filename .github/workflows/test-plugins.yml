@@ -13,8 +13,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  test:
-    name: ${{ matrix.plugin }}
+  open-pr:
+    name: PR / ${{ matrix.plugin }}
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'johnbillion/plugin-infrastructure' || github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
@@ -49,6 +49,7 @@ jobs:
               pull_number: ${{ env.PR_NUMBER }},
             });
             return {
+              origin_pr_number: ${{ env.PR_NUMBER }},
               head_repo: pr.data.head.repo.full_name,
               head_branch: pr.data.head.ref,
               head_sha: pr.data.head.sha,
@@ -108,10 +109,43 @@ jobs:
         run: | #shell
           echo "${{ steps.cpr.outputs.pull-request-url }}" >> $GITHUB_STEP_SUMMARY
 
+      - name: Save PR data to JSON file
+        run: | #shell
+          echo '${{ toJson( steps.pr-data.outputs.result ) }}' > pr-data.json
+
+      - name: Upload PR data
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-data-${{ matrix.plugin }}
+          path: pr-data.json
+
+  add-label:
+    name: Label / ${{ matrix.plugin }}
+    needs: open-pr
+    strategy:
+      matrix:
+        plugin:
+          - extended-cpts
+          - query-monitor
+          - user-switching
+          - wp-crontrol
+      fail-fast: false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Download PR data
+        uses: actions/download-artifact@v4
+        with:
+          name: pr-data-${{ matrix.plugin }}
+
+      - name: Read the PR data
+        id: pr-data
+        run: | #shell
+          echo "pr_data='$(cat pr-data.json)'" >> "$GITHUB_OUTPUT"
+
       - name: Set labels
         run: | #shell
-          gh --repo johnbillion/plugin-infrastructure label create "pr:${{ matrix.plugin }}:${{ steps.cpr.outputs.pull-request-number }}" --force --color FEF2C0
-          gh --repo johnbillion/plugin-infrastructure pr edit ${{ env.PR_NUMBER }} --add-label "pr:${{ matrix.plugin }}:${{ steps.cpr.outputs.pull-request-number }}"
+          gh --repo johnbillion/plugin-infrastructure label create "pr:${{ matrix.plugin }}:${{ fromJson( steps.pr-data.outputs.pr_data ).pr_number }}" --force --color FEF2C0
+          gh --repo johnbillion/plugin-infrastructure pr edit ${{ fromJson( steps.pr-data.outputs.pr_data ).origin_pr_number }} --add-label "pr:${{ matrix.plugin }}:${{ fromJson( steps.pr-data.outputs.pr_data ).pr_number }}"
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ fromJson( steps.pr-data.outputs.result ).pr_number }}
