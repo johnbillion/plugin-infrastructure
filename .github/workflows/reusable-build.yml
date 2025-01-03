@@ -88,6 +88,7 @@ jobs:
         PLUGIN: ${{ inputs.plugin }}
       run: | #shell
         composer install
+        mkdir languages
         docker compose run --rm wpcli i18n make-pot "wp-content/plugins/${PLUGIN}"
         git add -f languages/*
 
