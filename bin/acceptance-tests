@@ -12,10 +12,15 @@ export COMPOSE_PROJECT_NAME=${PLUGIN}
 
 echo "ℹ️ Starting up..."
 
+# Get the dynamic port number for a service:
+get_service_port() {
+	docker compose port "$1" "$2" | awk -F: '{print $2}'
+}
+
 # Prep:
-WP_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "80/tcp" 0).HostPort}}' ${PLUGIN}-server)"
-CHROME_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "4444/tcp" 0).HostPort}}' ${PLUGIN}-chrome)"
-DATABASE_PORT="$(docker inspect --type=container --format='{{(index .NetworkSettings.Ports "3306/tcp" 0).HostPort}}' ${PLUGIN}-database)"
+WP_PORT=$(get_service_port server 80)
+CHROME_PORT=$(get_service_port chrome 4444)
+DATABASE_PORT=$(get_service_port database 3306)
 WP_URL="http://host.docker.internal:${WP_PORT}"
 
 wp() {
