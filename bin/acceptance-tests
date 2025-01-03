@@ -81,7 +81,4 @@ TEST_SITE_WEBDRIVER_PORT=$CHROME_PORT \
 	TEST_SITE_WP_URL=$WP_URL \
 	./vendor/bin/codecept run acceptance "${CODECEPT_ARGS}"
 
-# Ciao:
-docker compose stop chrome
-
 echo '✅ Acceptance tests complete.'
