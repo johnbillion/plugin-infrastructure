@@ -87,14 +87,14 @@ jobs:
       env:
         PLUGIN: ${{ inputs.plugin }}
       run: | #shell
+        composer install
         docker compose run --rm wpcli i18n make-pot "wp-content/plugins/${PLUGIN}"
         git add -f languages/*
 
     - name: Generate autoload file
       if: ${{ inputs.vendor }}
       run: | #shell
-        composer install
-        # We can't call `composer run build-vendor` here because the script itself messes with
+        # We cannot call `composer run build-vendor` here because the script itself messes with
         # Composer dependencies and can result in a fatal error when dev dependencies are removed.
         ./vendor/johnbillion/plugin-infrastructure/bin/build-vendor
         git add -f vendor/autoload.php
