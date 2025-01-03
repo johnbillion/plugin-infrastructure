@@ -4,6 +4,10 @@ name: Build
 on:
   workflow_call:
     inputs:
+      plugin:
+        required: true
+        type: string
+        description: The plugin slug
       node:
         required: true
         type: boolean
@@ -78,6 +82,13 @@ jobs:
     - name: Install Dependencies
       if: ${{ inputs.node }}
       run: npm ci
+
+    - name: Generate POT file
+      env:
+        PLUGIN: ${{ inputs.plugin }}
+      run: | #shell
+        docker compose run --rm wpcli i18n make-pot "wp-content/plugins/${PLUGIN}"
+        git add -f languages/*
 
     - name: Generate autoload file
       if: ${{ inputs.vendor }}
