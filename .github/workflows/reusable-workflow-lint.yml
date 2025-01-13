@@ -20,7 +20,7 @@ jobs:
           persist-credentials: false
 
       - name: Run actionlint
-        uses: docker://rhysd/actionlint:latest
+        uses: docker://rhysd/actionlint:1.7.6
         with:
           args: "-color -verbose"
 
@@ -67,7 +67,7 @@ jobs:
         uses: astral-sh/setup-uv@38f3f104447c67c051c4a08e39b64a148898af3a # v4
 
       - name: Run zizmor
-        run: uvx zizmor --format sarif . > results.sarif
+        run: uvx zizmor@1.1.1 --format sarif . > results.sarif
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
