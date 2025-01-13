@@ -12,9 +12,11 @@ on:
         required: true
         type: string
         description: The plugin readme file name, either readme.md or readme.txt
-    secrets:
-      WPORG_SVN_USERNAME:
+      username:
         required: true
+        type: string
+        description: The WordPress.org SVN username
+    secrets:
       WPORG_SVN_PASSWORD:
         required: true
 
@@ -63,5 +65,5 @@ jobs:
         env:
           README_NAME: ${{ inputs.readme }}
           IGNORE_OTHER_FILES: true
-          SVN_USERNAME: ${{ secrets.WPORG_SVN_USERNAME }}
+          SVN_USERNAME: ${{ inputs.username }}
           SVN_PASSWORD: ${{ secrets.WPORG_SVN_PASSWORD }}

@@ -20,9 +20,11 @@ on:
         required: true
         type: string
         description: The version number of the release
-    secrets:
-      WPORG_SVN_USERNAME:
+      username:
         required: true
+        type: string
+        description: The WordPress.org SVN username
+    secrets:
       WPORG_SVN_PASSWORD:
         required: true
     outputs:
@@ -89,7 +91,7 @@ jobs:
       uses: 10up/action-wordpress-plugin-deploy@abb939a0d0bfd01063e8d1933833209201557381 # 2.2.2
       id: deploy
       env:
-        SVN_USERNAME: ${{ secrets.WPORG_SVN_USERNAME }}
+        SVN_USERNAME: ${{ inputs.username }}
         SVN_PASSWORD: ${{ secrets.WPORG_SVN_PASSWORD }}
         VERSION: ${{ inputs.version }}
       with:
