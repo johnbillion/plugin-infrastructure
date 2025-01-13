@@ -46,7 +46,7 @@ jobs:
 
       - name: Update Readme
         run: | #shell
-          echo "${CHANGELOG}" > "${README}"
+          echo "${CHANGELOG}" >> "${README}"
         env:
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
           README: ${{ inputs.readme }}
