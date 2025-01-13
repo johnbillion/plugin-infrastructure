@@ -54,7 +54,7 @@ jobs:
     steps:
 
     - name: Populate Changelog
-      uses: johnbillion/plugin-infrastructure/.github/actions/populate-changelog@trunk
+      uses: johnbillion/action-changelog@trunk
       id: changelog
       with:
         token: ${{ secrets.GITHUB_TOKEN }}

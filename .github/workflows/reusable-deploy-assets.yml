@@ -33,16 +33,16 @@ jobs:
       name: WordPress.org
       url: "https://wordpress.org/plugins/${{ inputs.plugin }}/"
     steps:
+      - name: Populate Changelog
+        uses: johnbillion/action-changelog@trunk
+        id: changelog
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-
-      - name: Populate Changelog
-        uses: johnbillion/plugin-infrastructure/.github/actions/populate-changelog@trunk
-        id: changelog
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update Readme
         run: | #shell
