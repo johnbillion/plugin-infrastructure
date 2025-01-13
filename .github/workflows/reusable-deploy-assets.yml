@@ -29,6 +29,9 @@ jobs:
     permissions:
       contents: read
     timeout-minutes: 10
+    environment:
+      name: WordPress.org
+      url: "https://wordpress.org/plugins/${{ inputs.plugin }}/"
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
