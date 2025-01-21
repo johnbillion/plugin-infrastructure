@@ -49,6 +49,7 @@ Plugins that use this library all use a similar setup in their workflows:
 	* Uses `reusable-static-analysis.yml`
 		* Installs PHP
 		* Runs static analysis with PHPStan
+		* Runs static analysis with Semgrep
 
 ### Workflow file linting
 
