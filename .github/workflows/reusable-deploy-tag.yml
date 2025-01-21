@@ -127,9 +127,9 @@ jobs:
       run: |
         IFS='.' read -r -a parts <<< "$VERSION"
         {
-          echo major="$((parts[0] + 1)).0.0"
-          echo minor="${parts[0]}.$((parts[1] + 1)).0"
-          echo patch="${parts[0]}.${parts[1]}.$((parts[2] + 1))"
+          echo "major=$((parts[0] + 1)).0.0"
+          echo "minor=${parts[0]}.$((parts[1] + 1)).0"
+          echo "patch=${parts[0]}.${parts[1]}.$((parts[2] + 1))"
         } >> "$GITHUB_OUTPUT"
 
     - name: Create next patch milestone

@@ -49,8 +49,7 @@ jobs:
 
   open-pr:
     name: Open PR / ${{ matrix.plugin }}
-    permissions:
-      pull-requests: write
+    permissions: {}
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'johnbillion/plugin-infrastructure' || github.event_name == 'workflow_dispatch'
     needs:
       - get-plugins
@@ -166,7 +165,7 @@ jobs:
       - name: Read the plugin PR data
         id: plugin-pr-data
         run: | #shell
-          echo pr_data="$(jq -c . plugin-pr-data.json)" >> "$GITHUB_OUTPUT"
+          echo "pr_data=$(jq -c . plugin-pr-data.json)" >> "$GITHUB_OUTPUT"
 
       - name: Set labels
         run: | #shell
@@ -199,7 +198,7 @@ jobs:
       - name: Read the plugin PR data
         id: plugin-pr-data
         run: | #shell
-          echo pr_data="$(jq -c . plugin-pr-data.json)" >> "$GITHUB_OUTPUT"
+          echo "pr_data=$(jq -c . plugin-pr-data.json)" >> "$GITHUB_OUTPUT"
 
       - name: Check the status of workflows
         run: | #shell
