@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Run PHPStan
-        uses: johnbillion/plugin-infrastructure/.github/actions/phpstan@composite-phpstan
+        uses: johnbillion/plugin-infrastructure/actions/phpstan@composite-phpstan
         with:
           php: ${{ inputs.php }}
 
