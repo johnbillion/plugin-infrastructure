@@ -59,7 +59,7 @@ jobs:
 
   semgrep:
     name: Semgrep
-    if: ${{ github.event.inputs.php != '7.4' }}
+    if: ${{ inputs.php != '7.4' }}
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -67,6 +67,11 @@ jobs:
     container:
       image: semgrep/semgrep
     steps:
+      - name: Debug
+        run: | #shell
+          echo '${{ toJSON(inputs) }}'
+        shell: bash
+
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
