@@ -23,6 +23,7 @@ jobs:
         uses: johnbillion/plugin-infrastructure/actions/phpstan@composite-phpstan
         with:
           php: ${{ inputs.php }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   semgrep:
     name: Semgrep

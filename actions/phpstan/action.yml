@@ -5,6 +5,10 @@ inputs:
     required: true
     type: string
     description: PHP version to use in major.minor format (e.g. 8.0)
+  GITHUB_TOKEN:
+    required: true
+    type: string
+    description: GitHub token for Composer cache
 
 runs:
   using: composite
@@ -23,7 +27,7 @@ runs:
         ini-file: development
       env:
         fail-fast: true
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
 
     - name: Get Composer cache directory
       id: composer-cache
