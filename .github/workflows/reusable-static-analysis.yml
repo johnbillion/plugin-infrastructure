@@ -19,43 +19,10 @@ jobs:
       contents: read
     timeout-minutes: 10
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      with:
-        persist-credentials: false
-
-    - name: Install PHP
-      uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # v2
-      with:
-        php-version: ${{ inputs.php }}
-        tools: composer:v2
-        coverage: none
-        ini-file: development
-      env:
-        fail-fast: true
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Get Composer cache directory
-      id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-
-    - name: Composer cache
-      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: composer-${{ inputs.php }}-${{ hashFiles('composer.json') }}
-
-    - name: PHPStan cache
-      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
-      with:
-        path: tests/cache/phpstan
-        key: phpstan-${{ inputs.php }}-${{ hashFiles('composer.json') }}-${{ hashFiles('phpstan.neon.dist') }}
-
-    - name: Install dependencies
-      run: composer install
-
-    - name: Run static analysis
-      run: composer run test:phpstan
+      - name: Run PHPStan
+        uses: johnbillion/plugin-infrastructure/.github/actions/phpstan@composite-phpstan
+        with:
+          php: ${{ inputs.php }}
 
   semgrep:
     name: Semgrep
