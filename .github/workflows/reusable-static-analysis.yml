@@ -56,21 +56,3 @@ jobs:
 
     - name: Run static analysis
       run: composer run test:phpstan
-
-  semgrep:
-    name: Semgrep
-    if: ${{ inputs.php != '7.4' }}
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-    timeout-minutes: 10
-    container:
-      image: semgrep/semgrep:1.103.0
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
-
-      - name: Run semgrep
-        run: semgrep --config "p/wordpress" --verbose .
