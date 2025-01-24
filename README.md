@@ -45,10 +45,11 @@ Plugins that use this library all use a similar setup in their workflows:
 ### Static analysis
 
 * Push to a main branch or pull request, `static-analysis.yml` fires
-	* Constructs a matrix of supported PHP versions
 	* Uses `reusable-static-analysis.yml`
+		* Minimum and maximum supported versions of PHP provided as inputs
 		* Installs PHP
-		* Runs static analysis with PHPStan
+		* Runs static analysis with PHPStan on minimum supported PHP version
+		* Runs static analysis with PHPStan on maximum supported PHP version
 		* Runs static analysis with Semgrep
 
 ### Workflow file linting

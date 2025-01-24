@@ -4,16 +4,20 @@ name: Static Analysis
 on:
   workflow_call:
     inputs:
-      php:
+      min-php:
         required: true
         type: string
-        description: PHP version to use in major.minor format (e.g. 8.0)
+        description: Minimum supported version of PHP in major.minor format (e.g. 8.0)
+      max-php:
+        required: true
+        type: string
+        description: Maximum supported version of PHP in major.minor format (e.g. 8.0)
 
 permissions: {}
 
 jobs:
-  phpstan:
-    name: PHPStan on PHP ${{ inputs.php }}
+  phpstan-max-php:
+    name: PHPStan on PHP ${{ inputs.max-php }}
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -22,12 +26,24 @@ jobs:
       - name: Run PHPStan
         uses: johnbillion/plugin-infrastructure/actions/phpstan@composite-phpstan
         with:
-          php: ${{ inputs.php }}
+          php: ${{ inputs.max-php }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  phpstan-min-php:
+    name: PHPStan on PHP ${{ inputs.min-php }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - name: Run PHPStan
+        uses: johnbillion/plugin-infrastructure/actions/phpstan@composite-phpstan
+        with:
+          php: ${{ inputs.min-php }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   semgrep:
     name: Semgrep
-    if: ${{ inputs.php != '7.4' }}
     runs-on: ubuntu-24.04
     permissions:
       contents: read
