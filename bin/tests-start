@@ -10,4 +10,4 @@ PLUGIN=${PWD##*/}
 # Environment variables
 export COMPOSE_PROJECT_NAME=${PLUGIN}
 
-docker compose up -d
+docker compose up --quiet-pull -d
