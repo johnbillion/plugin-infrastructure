@@ -11,6 +11,17 @@ Provided without support, warranty, guarantee, backwards compatibility, fitness 
 * [User Switching](https://github.com/johnbillion/user-switching)
 * [WP Crontrol](https://github.com/johnbillion/wp-crontrol)
 
+## Features
+
+* Acceptance testing
+* Integration testing
+* Coding standards testing
+* Static analysis
+* Workflow file linting
+* Deployment to wordpress.org
+* Build provenance attestation
+* SLSA v1.0 Build level 3 facilitation
+
 ## Overview
 
 Plugins that use this library all use a similar setup in their workflows:
@@ -62,7 +73,7 @@ Plugins that use this library all use a similar setup in their workflows:
 			* OpenSSF Scorecard
 		* Uploads results to GitHub Code Scanning
 
-### Deployment to WordPress.org
+### Deployment to wordpress.org
 
 * Push to the `release` branch, `build.yml` fires
 	* Uses `reusable-build.yml`
@@ -76,10 +87,10 @@ Plugins that use this library all use a similar setup in their workflows:
 	* Uses `reusable-deploy-tag.yml`
 		* Creates a changelog entry from the release notes
 		* Uses `10up/action-wordpress-plugin-deploy`
-			* Deploys the new version to WordPress.org
+			* Deploys the new version to wordpress.org
 			* Generates a zip file
 		* Uses `johnbillion/action-wordpress-plugin-attestation`
-			* Fetches the zip from WordPress.org
+			* Fetches the zip from wordpress.org
 			* Generates a build provenance attestation if the zip contents matches the build
 		* Closes the completed milestone for the release
 		* Creates the next major, minor, and patch release milestones
