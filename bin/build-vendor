@@ -43,7 +43,6 @@ rm -f "${PWD}/vendor/composer/autoload_files.php"
 rm -f "${PWD}/vendor/composer/autoload_namespaces.php"
 rm -f "${PWD}/vendor/composer/autoload_psr4.php"
 rm -f "${PWD}/vendor/composer/installed.json"
-rm -f "${PWD}/vendor/composer/installed.php"
 rm -f "${PWD}/vendor/composer/InstalledVersions.php"
 
 echo '✅ Vendor build complete.'
