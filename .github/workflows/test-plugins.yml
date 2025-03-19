@@ -20,6 +20,11 @@ jobs:
       matrix: ${{ steps.plugins.outputs.matrix }}
       source-pr-data: ${{ steps.source-pr-data.outputs.result }}
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2
+        with:
+          egress-policy: audit
+
       - name: Get the list of plugins to test
         id: plugins
         run: | #shell
@@ -59,6 +64,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2
+        with:
+          egress-policy: audit
+
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
@@ -157,6 +167,11 @@ jobs:
       matrix: ${{ fromJSON( needs.get-plugins.outputs.matrix ) }}
       fail-fast: false
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2
+        with:
+          egress-policy: audit
+
       - name: Download plugin PR data artifact
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
@@ -190,6 +205,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2
+        with:
+          egress-policy: audit
+
       - name: Download plugin PR data artifact
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:

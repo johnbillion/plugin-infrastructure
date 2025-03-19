@@ -33,6 +33,11 @@ jobs:
       name: WordPress.org
       url: "https://wordpress.org/plugins/${{ inputs.plugin }}/"
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2
+        with:
+          egress-policy: audit
+
       - name: Populate Changelog
         uses: johnbillion/action-changelog@trunk
         id: changelog

@@ -14,6 +14,11 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Harden the runner
+      uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2
+      with:
+        egress-policy: audit
+
     - name: Populate Changelog
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
       id: changelog
