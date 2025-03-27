@@ -28,7 +28,7 @@ jobs:
     timeout-minutes: 10
     steps:
     - name: Checkout repository
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         persist-credentials: true
 
@@ -59,7 +59,7 @@ jobs:
 
     - name: Install PHP
       if: ${{ inputs.vendor }}
-      uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # v2
+      uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # 2.32.0
       with:
         php-version: 8.0
         tools: composer:v2
@@ -71,7 +71,7 @@ jobs:
 
     - name: Setup node
       if: ${{ inputs.node }}
-      uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
+      uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
       with:
         node-version-file: '.nvmrc'
 
@@ -124,7 +124,7 @@ jobs:
       run: git archive --format=zip --output=build.zip HEAD
 
     - name: Upload zip
-      uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4
+      uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
       with:
         name: build
         path: build.zip
