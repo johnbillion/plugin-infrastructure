@@ -87,4 +87,3 @@ Plugins that use this library all use a similar setup in their workflows:
 ## Licence
 
 MIT
-
