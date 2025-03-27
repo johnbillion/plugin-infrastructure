@@ -64,7 +64,7 @@ jobs:
           svn --version
 
       - name: WordPress Plugin Deploy
-        uses: 10up/action-wordpress-plugin-asset-update@4eb612e1fceb9425cd6286a166ba1a4210052f64 # 2.1.3
+        uses: 10up/action-wordpress-plugin-asset-update@2480306f6f693672726d08b5917ea114cb2825f7 # 2.2.0
         env:
           README_NAME: ${{ inputs.readme }}
           IGNORE_OTHER_FILES: true

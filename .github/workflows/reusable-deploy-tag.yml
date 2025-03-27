@@ -88,7 +88,7 @@ jobs:
         svn --version
 
     - name: WordPress Plugin Deploy
-      uses: 10up/action-wordpress-plugin-deploy@abb939a0d0bfd01063e8d1933833209201557381 # 2.2.2
+      uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
       id: deploy
       env:
         SVN_USERNAME: ${{ inputs.username }}
@@ -99,14 +99,14 @@ jobs:
         generate-zip: true
 
     - name: Upload zip
-      uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: deployed-${{ inputs.plugin }}-${{ inputs.version }}
         path: ${{ steps.deploy.outputs.zip-path }}
 
     - name: Generate build provenance attestation
       if: ${{ inputs.deploy }}
-      uses: johnbillion/action-wordpress-plugin-attestation@ccbb8653d9d29a5c2e1d6a21a2fcc5dfe695c5b2 # 0.6.0
+      uses: johnbillion/action-wordpress-plugin-attestation@260e74afa5d1ecbc57b4bb67e390159026b58d45 # 0.7.0
       with:
         plugin: ${{ inputs.plugin }}
         version: ${{ inputs.version }}

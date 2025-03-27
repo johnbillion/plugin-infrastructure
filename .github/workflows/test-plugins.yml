@@ -106,7 +106,7 @@ jobs:
           git status
 
       - name: Open PR
-        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v6
         id: cpr
         with:
           token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
@@ -139,7 +139,7 @@ jobs:
           PR_DATA: ${{ toJson(steps.cpr.outputs) }}
 
       - name: Save plugin PR data as an artifact
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: plugin-pr-data-${{ matrix.plugin }}
           path: plugin-pr-data.json
@@ -158,7 +158,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Download plugin PR data artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
           name: plugin-pr-data-${{ matrix.plugin }}
 
@@ -191,7 +191,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Download plugin PR data artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
           name: plugin-pr-data-${{ matrix.plugin }}
 
