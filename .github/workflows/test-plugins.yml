@@ -3,6 +3,8 @@
 name: Test Plugins
 on:
   pull_request:
+    branches-ignore:
+      - 'dependabot/**'
   workflow_dispatch:
     inputs:
       PR_NUMBER:
