@@ -15,6 +15,7 @@ jobs:
   get-plugins:
     name: Get plugins
     permissions: {}
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'johnbillion/plugin-infrastructure' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.plugins.outputs.matrix }}
@@ -50,7 +51,6 @@ jobs:
   open-pr:
     name: Open PR / ${{ matrix.plugin }}
     permissions: {}
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'johnbillion/plugin-infrastructure' || github.event_name == 'workflow_dispatch'
     needs:
       - get-plugins
     strategy:
