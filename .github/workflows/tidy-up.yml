@@ -4,6 +4,11 @@ name: Tidy up
 on:
   pull_request:
     types: [ closed ]
+  workflow_dispatch:
+    inputs:
+      PR_NUMBER:
+        description: The PR number to tidy up
+        required: true
 
 permissions: {}
 
@@ -11,19 +16,21 @@ jobs:
   close:
     name: Close PRs
     permissions: {}
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'johnbillion/plugin-infrastructure'
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'johnbillion/plugin-infrastructure' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Close PRs
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          SOURCE_PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.event.inputs.PR_NUMBER }}
         with:
           retries: 2
           script: | #js
             const pr = await github.rest.pulls.get({
               owner: 'johnbillion',
               repo: 'plugin-infrastructure',
-              pull_number: context.issue.number
+              pull_number: process.env.SOURCE_PR_NUMBER,
             });
             const labels = pr.data.labels.map(label => label.name);
 
