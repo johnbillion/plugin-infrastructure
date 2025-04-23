@@ -62,6 +62,9 @@ jobs:
     - name: Install dependencies
       run: composer install
 
+    - name: Create PHPCS cache directory
+      run: mkdir --parents tests/cache
+
     - name: Run code sniffer
       run: composer run test:phpcs -- --report-checkstyle=./tests/cache/phpcs-report.xml
       id: phpcs
