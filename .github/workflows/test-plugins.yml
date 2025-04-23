@@ -102,7 +102,7 @@ jobs:
 
       - name: Check the changed files
         run: | #shell
-          git diff
+          git diff --color
           git status
 
       - name: Open PR
