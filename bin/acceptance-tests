@@ -64,19 +64,25 @@ wp rewrite structure '/%postname%/'
 # Activate the plugin under test:
 wp plugin activate ${PLUGIN}
 
-CODECEPT_ARGS=""
+CODECEPT_ARGS=()
 
-for flag; do
-	# If the flag starts with `--cli=`, then we want to run the command:
-	if [[ $flag == --cli=* ]]; then
-		# Remove the prefix:
-		cli_command="${flag#--cli=}"
-		# Run the command:
-		wp $cli_command
-	# Otherwise, we want to pass the flag to Codeception:
-	else
-		CODECEPT_ARGS="$CODECEPT_ARGS $flag"
-	fi
+# Parse arguments
+while [[ "$#" -gt 0 ]]; do
+	case $1 in
+		--cli=*)
+			cli_command="${1#--cli=}"
+			wp $cli_command
+			;;
+		--codecept-args=*)
+			CODECEPT_ARGS+=("${1#--codecept-args=}")
+			;;
+		*)
+			echo "Unknown parameter passed: $1"
+			echo "Usage: $0 [--cli=<command>] [--codecept-args=<args>]"
+			exit 1
+			;;
+	esac
+	shift
 done
 
 # Run the acceptance tests:
@@ -84,6 +90,6 @@ echo 'ℹ️ Running tests...'
 TEST_SITE_WEBDRIVER_PORT=$CHROME_PORT \
 	TEST_SITE_DATABASE_PORT=$DATABASE_PORT \
 	TEST_SITE_WP_URL=$WP_URL \
-	./vendor/bin/codecept run acceptance "${CODECEPT_ARGS}"
+	./vendor/bin/codecept run acceptance "${CODECEPT_ARGS[@]}"
 
 echo '✅ Acceptance tests complete.'
