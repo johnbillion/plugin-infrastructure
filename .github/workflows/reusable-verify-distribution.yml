@@ -17,7 +17,7 @@ permissions: {}
 
 jobs:
   wordpress-org:
-    name: Verify provenance of plugin on WordPress.org
+    name: WordPress.org
     runs-on: ubuntu-latest
     permissions: {}
     steps:
