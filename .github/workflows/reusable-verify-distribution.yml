@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+
+name: Verify Plugin Distribution
+on:
+  workflow_call:
+    inputs:
+      plugin:
+        description: The plugin slug
+        required: true
+        type: string
+      owner:
+        description: GitHub owner or organisation
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  wordpress-org:
+    name: Verify provenance of plugin on WordPress.org
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Fetch plugin from WordPress.org
+        env:
+          PLUGIN_SLUG: ${{ inputs.plugin }}
+        run: |
+          curl --output "${PLUGIN_SLUG}.zip" "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.zip"
+
+      - name: Verify build provenance attestation
+        env:
+          EXPECTED_OWNER: ${{ inputs.owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PLUGIN_SLUG: ${{ inputs.plugin }}
+        run: |
+          gh attestation verify "${PLUGIN_SLUG}.zip" --owner "$EXPECTED_OWNER"
