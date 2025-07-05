@@ -94,8 +94,9 @@ Plugins that use this library all use a similar setup in their workflows:
 			* Generates a build provenance attestation if the zip contents matches the build
 		* Closes the completed milestone for the release
 		* Creates the next major, minor, and patch release milestones
-* Hourly scheduled action runs
-	* Verifies the provenance of the plugin on WordPress.org
+* Hourly scheduled workflow runs in `verify-distribution.yml`
+	* Uses `reusable-verify-distribution.yml`
+		* Verifies the provenance of the plugin on WordPress.org
 
 ## Licence
 
