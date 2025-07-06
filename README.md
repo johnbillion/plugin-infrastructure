@@ -70,7 +70,6 @@ Plugins that use this library all use a similar setup in their workflows:
 			* Octoscan
 			* Zizmor
 			* Poutine
-			* OpenSSF Scorecard
 		* Uploads results to GitHub Code Scanning
 
 ### Deployment to wordpress.org
