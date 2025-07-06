@@ -1,6 +1,6 @@
 # Plugin Infrastructure
 
-Reusable infrastructure relating to testing, building, and deploying my WordPress plugins (see the "Used by" section below).
+Reusable infrastructure relating to testing, building, linting, deploying, and verifying my WordPress plugins (see the "Used by" section below).
 
 Provided without support, warranty, guarantee, backwards compatibility, fitness for purpose, resilience, safety, sanity, beauty, or support for any plugin that isn't one of mine.
 
@@ -18,15 +18,14 @@ Provided without support, warranty, guarantee, backwards compatibility, fitness 
 * Coding standards testing
 * Static analysis
 * Workflow file linting
-* Deployment to wordpress.org
+* Deployment to WordPress.org
 * Build provenance attestation
 * SLSA v1.0 Build level 3 facilitation
-
-## Overview
+* Ongoing supply chain assurance
 
 Plugins that use this library all use a similar setup in their workflows:
 
-### Acceptance testing
+## Acceptance testing
 
 * Push to a main branch or pull request, `acceptance-tests.yml` fires
 	* Constructs a matrix of supported PHP and WordPress versions
@@ -35,7 +34,7 @@ Plugins that use this library all use a similar setup in their workflows:
 		* Runs the build
 		* Runs acceptance testing with wp-browser
 
-### Integration testing
+## Integration testing
 
 * Push to a main branch or pull request, `integration-tests.yml` fires
 	* Constructs a matrix of supported PHP and WordPress versions
@@ -46,14 +45,14 @@ Plugins that use this library all use a similar setup in their workflows:
 			* Single site
 			* Multisite
 
-### Coding standards testing
+## Coding standards testing
 
 * Push to a main branch or pull request, `coding-standards.yml` fires
 	* Uses `reusable-coding-standards.yml`
 		* Installs PHP
 		* Checks coding standards with PHPCS
 
-### Static analysis
+## Static analysis
 
 * Push to a main branch or pull request, `static-analysis.yml` fires
 	* Constructs a matrix of supported PHP versions
@@ -61,7 +60,7 @@ Plugins that use this library all use a similar setup in their workflows:
 		* Installs PHP
 		* Runs static analysis with PHPStan
 
-### Workflow file linting
+## Workflow file linting
 
 * Push to a main branch or pull request, `lint-workflows.yml` fires
 	* Uses `reusable-workflow-lint.yml`
@@ -72,7 +71,9 @@ Plugins that use this library all use a similar setup in their workflows:
 			* Poutine
 		* Uploads results to GitHub Code Scanning
 
-### Deployment to wordpress.org
+## Deployment
+
+### WordPress.org
 
 * Push to the `release` branch, `build.yml` fires
 	* Uses `reusable-build.yml`
@@ -86,13 +87,24 @@ Plugins that use this library all use a similar setup in their workflows:
 	* Uses `reusable-deploy-tag.yml`
 		* Creates a changelog entry from the release notes
 		* Uses `10up/action-wordpress-plugin-deploy`
-			* Deploys the new version to wordpress.org
+			* Deploys the new version to WordPress.org
 			* Generates a zip file
 		* Uses `johnbillion/action-wordpress-plugin-attestation`
-			* Fetches the zip from wordpress.org
+			* Fetches the zip from WordPress.org
 			* Generates a build provenance attestation if the zip contents matches the build
-		* Closes the completed milestone for the release
-		* Creates the next major, minor, and patch release milestones
+
+### Packagist
+
+* Happens automatically with each release via the auto-update mechanism on Packagist.org.
+* Always identical to the version deployed to WordPress.org
+
+### GitHub
+
+* Automatically closes the completed milestone for each release
+* Automatically creates the next major, minor, and patch release milestones after each release
+
+## Supply chain assurance
+
 * Hourly scheduled workflow runs in `verify-distribution.yml`
 	* Uses `reusable-verify-distribution.yml`
 		* Verifies the provenance of the plugin on WordPress.org
