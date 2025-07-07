@@ -47,7 +47,7 @@ jobs:
           filter_triggers: ''
 
       - name: Upload SARIF file to GitHub
-        uses: github/codeql-action/upload-sarif@39edc492dbe16b1465b0cafca41432d857bdb31a # v3.29.1
+        uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
         with:
           sarif_file: "${{steps.octoscan.outputs.sarif_output}}"
           category: octoscan
@@ -74,7 +74,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@39edc492dbe16b1465b0cafca41432d857bdb31a # v3.29.1
+        uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
         with:
           sarif_file: results.sarif
           category: zizmor
@@ -95,7 +95,7 @@ jobs:
       uses: boostsecurityio/poutine-action@84c0a0d32e8d57ae12651222be1eb15351429228 # v0.15.2
 
     - name: Upload poutine SARIF file
-      uses: github/codeql-action/upload-sarif@39edc492dbe16b1465b0cafca41432d857bdb31a # v3.29.1
+      uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
       with:
         sarif_file: results.sarif
         category: poutine
@@ -113,11 +113,11 @@ jobs:
         persist-credentials: false
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@39edc492dbe16b1465b0cafca41432d857bdb31a # v3.29.1
+      uses: github/codeql-action/init@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
       with:
         languages: actions
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@39edc492dbe16b1465b0cafca41432d857bdb31a # v3.29.1
+      uses: github/codeql-action/analyze@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
       with:
         category: codeql
