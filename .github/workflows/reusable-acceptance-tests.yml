@@ -112,3 +112,4 @@ jobs:
       with:
         name: acceptance-wp-${{ inputs.wp }}-php-${{ inputs.php }}
         path: tests/_output
+        if-no-files-found: error

@@ -143,6 +143,7 @@ jobs:
         with:
           name: plugin-pr-data-${{ matrix.plugin }}
           path: plugin-pr-data.json
+          if-no-files-found: error
 
   label:
     name: Label PR / ${{ matrix.plugin }}

@@ -128,4 +128,5 @@ jobs:
       with:
         name: build
         path: build.zip
+        if-no-files-found: error
       if: always() && steps.create-zip.outcome == 'success'
