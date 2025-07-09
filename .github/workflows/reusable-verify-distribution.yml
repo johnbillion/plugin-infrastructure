@@ -27,12 +27,6 @@ jobs:
         run: |
           curl --output "${PLUGIN_SLUG}.zip" "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.zip"
 
-      - name: Save plugin as artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: "${{ inputs.plugin }}-wordpress-org"
-          path: "${{ inputs.plugin }}.zip"
-
       - name: Verify build provenance attestation
         env:
           EXPECTED_OWNER: ${{ inputs.owner }}
@@ -40,3 +34,11 @@ jobs:
           PLUGIN_SLUG: ${{ inputs.plugin }}
         run: |
           gh attestation verify "${PLUGIN_SLUG}.zip" --owner "$EXPECTED_OWNER"
+
+      - name: Save plugin as artifact
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: "${{ inputs.plugin }}-wordpress-org"
+          path: "${{ inputs.plugin }}.zip"
+          if-no-files-found: error
