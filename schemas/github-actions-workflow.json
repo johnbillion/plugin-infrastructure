@@ -24,6 +24,7 @@
     "if": {
         "properties": {
             "on": {
+                "type": "object",
                 "properties": {
                     "workflow_call": true
                 },
@@ -35,6 +36,7 @@
     "then": {
         "properties": {
             "jobs": {
+                "type": "object",
                 "additionalProperties": {
                     "type": "object",
                     "required": [
@@ -53,6 +55,7 @@
     "else": {
         "properties": {
             "jobs": {
+                "type": "object",
                 "additionalProperties": {
                     "type": "object",
                     "required": [

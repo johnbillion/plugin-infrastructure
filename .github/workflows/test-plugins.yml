@@ -17,6 +17,7 @@ jobs:
     permissions: {}
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'johnbillion/plugin-infrastructure' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     outputs:
       matrix: ${{ steps.plugins.outputs.matrix }}
       source-pr-data: ${{ steps.source-pr-data.outputs.result }}

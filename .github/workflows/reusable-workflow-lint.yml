@@ -142,4 +142,4 @@ jobs:
       run: npm install -g ajv-cli
 
     - name: Validate workflow files against schema
-      run: ajv validate -s schemas/github-actions-workflow.json -d '.github/workflows/*.yml'
+      run: ajv validate -s schemas/github-actions-workflow.json -d '.github/workflows/*.yml' --spec=draft2019

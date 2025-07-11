@@ -23,4 +23,5 @@ jobs:
       security-events: write
       actions: read
       contents: read
+    timeout-minutes: 15
     uses: ./.github/workflows/reusable-workflow-lint.yml
