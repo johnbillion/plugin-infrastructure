@@ -13,65 +13,40 @@
             "type": "object",
             "description": "Workflow-level permissions are required for security"
         },
-        "on": {
-            "type": "object"
-        },
         "jobs": {
             "type": "object",
-            "minProperties": 1
-        }
-    },
-    "if": {
-        "properties": {
-            "on": {
+            "minProperties": 1,
+            "additionalProperties": {
                 "type": "object",
+                "required": [
+                    "permissions"
+                ],
                 "properties": {
-                    "workflow_call": true
-                },
-                "required": ["workflow_call"]
-            }
-        },
-        "required": ["on"]
-    },
-    "then": {
-        "properties": {
-            "jobs": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "required": [
-                        "permissions"
-                    ],
-                    "properties": {
-                        "permissions": {
-                            "type": "object",
-                            "description": "Job-level permissions are required for security"
-                        }
+                    "permissions": {
+                        "type": "object",
+                        "description": "Job-level permissions are required for security"
+                    },
+                    "timeout-minutes": {
+                        "type": "integer",
+                        "description": "Job timeout is required to prevent runaway jobs"
+                    },
+                    "uses": {
+                        "type": "string"
                     }
-                }
-            }
-        }
-    },
-    "else": {
-        "properties": {
-            "jobs": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
+                },
+                "if": {
+                    "not": {
+                        "properties": {
+                            "uses": true
+                        },
+                        "required": ["uses"]
+                    }
+                },
+                "then": {
                     "required": [
                         "permissions",
                         "timeout-minutes"
-                    ],
-                    "properties": {
-                        "permissions": {
-                            "type": "object",
-                            "description": "Job-level permissions are required for security"
-                        },
-                        "timeout-minutes": {
-                            "type": "integer",
-                            "description": "Job timeout is required to prevent runaway jobs"
-                        }
-                    }
+                    ]
                 }
             }
         }
