@@ -90,6 +90,6 @@ echo 'ℹ️ Running tests...'
 TEST_SITE_WEBDRIVER_PORT=$CHROME_PORT \
 	TEST_SITE_DATABASE_PORT=$DATABASE_PORT \
 	TEST_SITE_WP_URL=$WP_URL \
-	php -d error_reporting="E_ALL & ~E_DEPRECATED & ~E_STRICT" ./vendor/bin/codecept run acceptance "${CODECEPT_ARGS[@]}"
+	php -d error_reporting="E_ALL & ~E_DEPRECATED & ~E_STRICT" ./vendor/bin/codecept run acceptance -v "${CODECEPT_ARGS[@]}"
 
 echo '✅ Acceptance tests complete.'
