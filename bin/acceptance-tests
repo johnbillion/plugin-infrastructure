@@ -24,7 +24,7 @@ DATABASE_PORT=$(get_service_port database 3306)
 WP_URL="http://host.docker.internal:${WP_PORT}"
 
 wp() {
-	docker compose run --quiet-pull --rm wpcli --url="${WP_URL}" "$@"
+	docker compose exec --user wp_php wpcli wp --url="${WP_URL}" "$@"
 }
 
 # Wait for the database server:

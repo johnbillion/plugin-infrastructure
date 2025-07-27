@@ -101,7 +101,7 @@ jobs:
       run: composer exec tests-start
 
     - name: Log WordPress version
-      run: docker compose run --quiet-pull --rm wpcli core version
+      run: docker compose exec --user wp_php wpcli wp core version
 
     - name: Run the tests
       run: composer run test:acceptance
