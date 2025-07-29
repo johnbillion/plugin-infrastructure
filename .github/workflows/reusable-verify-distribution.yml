@@ -28,12 +28,21 @@ jobs:
           curl --output "${PLUGIN_SLUG}.zip" "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.zip"
 
       - name: Verify build provenance attestation
+        id: verify-attestation
         env:
           EXPECTED_OWNER: ${{ inputs.owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PLUGIN_SLUG: ${{ inputs.plugin }}
         run: |
           gh attestation verify "${PLUGIN_SLUG}.zip" --owner "$EXPECTED_OWNER"
+
+      - name: Show SHA256 hash on failure
+        if: failure() && steps.verify-attestation.outcome == 'failure'
+        env:
+          PLUGIN_SLUG: ${{ inputs.plugin }}
+        run: |
+          echo "Attestation verification failed. SHA256 hash of downloaded file:"
+          sha256sum "${PLUGIN_SLUG}.zip"
 
       - name: Save plugin as artifact
         if: failure()
