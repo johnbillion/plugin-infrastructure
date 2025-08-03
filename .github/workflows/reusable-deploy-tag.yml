@@ -16,6 +16,11 @@ on:
         required: true
         type: boolean
         description: Whether to deploy the release to WordPress.org
+      attest:
+        required: false
+        default: true
+        type: boolean
+        description: Whether to generate a build provenance attestation
       version:
         required: true
         type: string
@@ -106,7 +111,7 @@ jobs:
         if-no-files-found: error
 
     - name: Generate build provenance attestation
-      if: ${{ inputs.deploy }}
+      if: ${{ inputs.deploy && inputs.attest }}
       uses: johnbillion/action-wordpress-plugin-attestation@b749ddf48d76c82d31a12c8ef336bd76af0a901b # 0.7.1
       with:
         plugin: ${{ inputs.plugin }}
