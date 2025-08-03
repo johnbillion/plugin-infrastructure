@@ -69,31 +69,39 @@ jobs:
       - name: Update tests references
         run: | #shell
           if [ -f .github/workflows/acceptance-tests.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/.github/workflows/reusable-acceptance-tests.yml@trunk|${HEAD_REPO}/.github/workflows/reusable-acceptance-tests.yml@${SHA_REF}|g" .github/workflows/acceptance-tests.yml
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-acceptance-tests\.yml@[^[:space:]]*|${HEAD_REPO}/.github/workflows/reusable-acceptance-tests.yml@${SHA_REF}|g" .github/workflows/acceptance-tests.yml
+            grep -qF "${HEAD_REPO}/.github/workflows/reusable-acceptance-tests.yml@${SHA_REF}" .github/workflows/acceptance-tests.yml || { echo "Error: Replacement failed in acceptance-tests.yml"; exit 1; }
           fi
           if [ -f .github/workflows/build.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/.github/workflows/reusable-build.yml@trunk|${HEAD_REPO}/.github/workflows/reusable-build.yml@${SHA_REF}|g" .github/workflows/build.yml
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-build\.yml@[^[:space:]]*|${HEAD_REPO}/.github/workflows/reusable-build.yml@${SHA_REF}|g" .github/workflows/build.yml
+            grep -qF "${HEAD_REPO}/.github/workflows/reusable-build.yml@${SHA_REF}" .github/workflows/build.yml || { echo "Error: Replacement failed in build.yml"; exit 1; }
           fi
           if [ -f .github/workflows/coding-standards.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/.github/workflows/reusable-coding-standards.yml@trunk|${HEAD_REPO}/.github/workflows/reusable-coding-standards.yml@${SHA_REF}|g" .github/workflows/coding-standards.yml
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-coding-standards\.yml@[^[:space:]]*|${HEAD_REPO}/.github/workflows/reusable-coding-standards.yml@${SHA_REF}|g" .github/workflows/coding-standards.yml
+            grep -qF "${HEAD_REPO}/.github/workflows/reusable-coding-standards.yml@${SHA_REF}" .github/workflows/coding-standards.yml || { echo "Error: Replacement failed in coding-standards.yml"; exit 1; }
           fi
           if [ -f .github/workflows/deploy-assets.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/.github/workflows/reusable-deploy-assets.yml@trunk|${HEAD_REPO}/.github/workflows/reusable-deploy-assets.yml@${SHA_REF}|g" .github/workflows/deploy-assets.yml
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-deploy-assets\.yml@[^[:space:]]*|${HEAD_REPO}/.github/workflows/reusable-deploy-assets.yml@${SHA_REF}|g" .github/workflows/deploy-assets.yml
+            grep -qF "${HEAD_REPO}/.github/workflows/reusable-deploy-assets.yml@${SHA_REF}" .github/workflows/deploy-assets.yml || { echo "Error: Replacement failed in deploy-assets.yml"; exit 1; }
           fi
           if [ -f .github/workflows/deploy-tag.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/.github/workflows/reusable-deploy-tag.yml@trunk|${HEAD_REPO}/.github/workflows/reusable-deploy-tag.yml@${SHA_REF}|g" .github/workflows/deploy-tag.yml
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-deploy-tag\.yml@[^[:space:]]*|${HEAD_REPO}/.github/workflows/reusable-deploy-tag.yml@${SHA_REF}|g" .github/workflows/deploy-tag.yml
+            grep -qF "${HEAD_REPO}/.github/workflows/reusable-deploy-tag.yml@${SHA_REF}" .github/workflows/deploy-tag.yml || { echo "Error: Replacement failed in deploy-tag.yml"; exit 1; }
           fi
           if [ -f .github/workflows/integration-tests.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/.github/workflows/reusable-integration-tests.yml@trunk|${HEAD_REPO}/.github/workflows/reusable-integration-tests.yml@${SHA_REF}|g" .github/workflows/integration-tests.yml
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-integration-tests\.yml@[^[:space:]]*|${HEAD_REPO}/.github/workflows/reusable-integration-tests.yml@${SHA_REF}|g" .github/workflows/integration-tests.yml
+            grep -qF "${HEAD_REPO}/.github/workflows/reusable-integration-tests.yml@${SHA_REF}" .github/workflows/integration-tests.yml || { echo "Error: Replacement failed in integration-tests.yml"; exit 1; }
           fi
           if [ -f .github/workflows/static-analysis.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/.github/workflows/reusable-static-analysis.yml@trunk|${HEAD_REPO}/.github/workflows/reusable-static-analysis.yml@${SHA_REF}|g" .github/workflows/static-analysis.yml
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-static-analysis\.yml@[^[:space:]]*|${HEAD_REPO}/.github/workflows/reusable-static-analysis.yml@${SHA_REF}|g" .github/workflows/static-analysis.yml
+            grep -qF "${HEAD_REPO}/.github/workflows/reusable-static-analysis.yml@${SHA_REF}" .github/workflows/static-analysis.yml || { echo "Error: Replacement failed in static-analysis.yml"; exit 1; }
           fi
           if [ -f .github/workflows/lint-workflows.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/.github/workflows/reusable-workflow-lint.yml@trunk|${HEAD_REPO}/.github/workflows/reusable-workflow-lint.yml@${SHA_REF}|g" .github/workflows/lint-workflows.yml
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-workflow-lint\.yml@[^[:space:]]*|${HEAD_REPO}/.github/workflows/reusable-workflow-lint.yml@${SHA_REF}|g" .github/workflows/lint-workflows.yml
+            grep -qF "${HEAD_REPO}/.github/workflows/reusable-workflow-lint.yml@${SHA_REF}" .github/workflows/lint-workflows.yml || { echo "Error: Replacement failed in lint-workflows.yml"; exit 1; }
           fi
           if [ "${HEAD_REPO}" == "johnbillion/plugin-infrastructure" ]; then
-            sed -i "s|\"johnbillion/plugin-infrastructure\": \"dev-trunk\"|\"johnbillion/plugin-infrastructure\": \"dev-${HEAD_BRANCH}\"|g" composer.json
+            sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]+\"|\"johnbillion/plugin-infrastructure\": \"dev-${HEAD_BRANCH}\"|g" composer.json
           fi
         env:
           HEAD_BRANCH: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
