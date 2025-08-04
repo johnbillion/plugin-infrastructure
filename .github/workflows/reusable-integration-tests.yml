@@ -46,7 +46,7 @@ jobs:
         echo PHP_FPM_GID="$(id -g)" >> "$GITHUB_ENV"
 
     - name: Install PHP
-      uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # 2.34.1
+      uses: shivammathur/setup-php@ccf2c627fe61b1b4d924adfcbd19d661a18133a0 # 2.35.2
       with:
         php-version: ${{ inputs.php }}
         tools: composer:v2
