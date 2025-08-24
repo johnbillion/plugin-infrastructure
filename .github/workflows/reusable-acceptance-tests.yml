@@ -100,8 +100,19 @@ jobs:
     - name: Start Docker environment
       run: composer exec tests-start
 
-    - name: Log WordPress version
-      run: docker compose exec --user wp_php wpcli wp core version
+    - name: Debugging
+      run: | #shell
+        echo "=== Docker ==="
+        docker --version
+        docker compose version
+        docker compose ps
+        echo "=== PHP ==="
+        docker compose exec php php --version
+        docker compose exec php php -m
+        echo "=== Database ==="
+        docker compose exec database mysql --version
+        echo "=== WP-CLI ==="
+        docker compose exec --user wp_php wpcli wp core version
 
     - name: Run the tests
       run: composer run test:acceptance
