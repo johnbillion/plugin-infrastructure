@@ -102,6 +102,7 @@ jobs:
           fi
           if [ "${HEAD_REPO}" == "johnbillion/plugin-infrastructure" ]; then
             sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"dev-${HEAD_BRANCH}\"|g" composer.json
+            grep -qF "\"johnbillion/plugin-infrastructure\": \"dev-${HEAD_BRANCH}\"" composer.json || { echo "Error: Replacement failed in composer.json"; exit 1; }
           fi
         env:
           HEAD_BRANCH: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
