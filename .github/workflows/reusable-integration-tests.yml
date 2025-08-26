@@ -32,7 +32,8 @@ jobs:
       contents: read
     timeout-minutes: 10
     env:
-      LOCAL_PHP: ${{ inputs.php }}
+      LOCAL_PHP: ${{ '8.4' == inputs.php && 'sha256:56d6cbf10d25bfcb80852c09c2fc2e967922881b233b6161ad2999df509eb59a' || '8.3' == inputs.php && 'sha256:c0ba85936a9d1ac2c98bf3da2d62ceb0e5787a6b11e383630df0c5a5bf2534b5' || format( '{0}-fpm', inputs.php ) }}
+      LOCAL_CLI: ${{ '8.4' == inputs.php && 'sha256:379f27b0c623c5cee5a7fbef1d617ce47fd3ba19158bac2e51861876fd68fdbf' || '8.3' == inputs.php && 'sha256:85ad7d7a9c3bd9a8775fc83aea7f7dfc0aad25b2bc4f7d740696b28cd2a0ef89' || format( '{0}-fpm', inputs.php ) }}
       LOCAL_WP_DEBUG: ${{ inputs.php < 8.1 && 1 || 0 }}
     steps:
     - name: Checkout repository

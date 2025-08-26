@@ -15,7 +15,7 @@ services:
       - ./:/var/www/html/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
 
   php:
-    image: wordpressdevelop/php:${LOCAL_PHP-8.3}-fpm
+    image: wordpressdevelop/php:${LOCAL_PHP-8.3}
     container_name: ${COMPOSE_PROJECT_NAME}-php
     restart: always
     environment:
@@ -50,7 +50,7 @@ services:
       - database:/var/lib/mysql:rw
 
   wpcli:
-    image: wordpressdevelop/cli:${LOCAL_PHP-8.3}-fpm
+    image: wordpressdevelop/cli:${LOCAL_CLI-8.3}
     container_name: ${COMPOSE_PROJECT_NAME}-wpcli
     environment:
       PHP_FPM_UID: ${PHP_FPM_UID-1000}
