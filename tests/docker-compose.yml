@@ -15,7 +15,7 @@ services:
       - ./:/var/www/html/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
 
   php:
-    image: wordpressdevelop/${LOCAL_PHP-php:8.3-fpm}
+    image: wordpressdevelop/${LOCAL_PHP-php@sha256:c0ba85936a9d1ac2c98bf3da2d62ceb0e5787a6b11e383630df0c5a5bf2534b5}
     container_name: ${COMPOSE_PROJECT_NAME}-php
     restart: always
     environment:
@@ -50,7 +50,7 @@ services:
       - database:/var/lib/mysql:rw
 
   wpcli:
-    image: wordpressdevelop/${LOCAL_CLI-cli:8.3-fpm}
+    image: wordpressdevelop/${LOCAL_CLI-cli@sha256:85ad7d7a9c3bd9a8775fc83aea7f7dfc0aad25b2bc4f7d740696b28cd2a0ef89}
     container_name: ${COMPOSE_PROJECT_NAME}-wpcli
     environment:
       PHP_FPM_UID: ${PHP_FPM_UID-1000}
