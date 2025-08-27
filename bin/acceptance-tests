@@ -10,8 +10,6 @@ PLUGIN=${PWD##*/}
 # Environment variables
 export COMPOSE_PROJECT_NAME=${PLUGIN}
 
-echo "ℹ️ Starting up..."
-
 # Get the dynamic port number for a service:
 get_service_port() {
 	docker compose port "$1" "$2" | awk -F: '{print $2}'
@@ -26,16 +24,6 @@ WP_URL="http://host.docker.internal:${WP_PORT}"
 wp() {
 	docker compose exec --user wp_php wpcli wp --url="${WP_URL}" "$@"
 }
-
-# Wait for the database server:
-while ! docker compose exec -T database /bin/bash -c 'mysqladmin ping --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --silent' | grep 'mysqld is alive' >/dev/null; do
-	echo 'ℹ️ Waiting for database server ping...'
-	sleep 3
-done
-while ! docker compose exec -T database /bin/bash -c 'mysql --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --execute="SHOW DATABASES;"' | grep 'information_schema' >/dev/null; do
-	echo 'ℹ️ Waiting for database server query...'
-	sleep 3
-done
 
 # Wait for Selenium:
 while ! curl -sSL "http://localhost:${CHROME_PORT}/wd/hub/status" 2>&1 | grep '"ready": true' >/dev/null; do

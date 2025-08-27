@@ -27,7 +27,8 @@ services:
       WORDPRESS_DB_NAME: plugindb
       WORDPRESS_DEBUG: ${LOCAL_WP_DEBUG-1}
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     init: true
     volumes:
       - ./vendor/wordpress/wordpress:/var/www/html/:rw
@@ -36,7 +37,7 @@ services:
       - ./:/var/www/html/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
 
   database:
-    image: mariadb:10.5.8
+    image: mariadb:11.8.3
     container_name: ${COMPOSE_PROJECT_NAME}-database
     restart: always
     ports:
@@ -48,6 +49,12 @@ services:
       MYSQL_RANDOM_ROOT_PASSWORD: '1'
     volumes:
       - database:/var/lib/mysql:rw
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   wpcli:
     image: wordpressdevelop/${LOCAL_CLI-cli@sha256:85ad7d7a9c3bd9a8775fc83aea7f7dfc0aad25b2bc4f7d740696b28cd2a0ef89}
@@ -60,8 +67,10 @@ services:
       WORDPRESS_DB_PASSWORD: pluginpass
       WORDPRESS_DB_NAME: plugindb
     depends_on:
-      - database
-      - php
+      database:
+        condition: service_healthy
+      php:
+        condition: service_started
     init: true
     volumes:
       - ./vendor/wordpress/wordpress:/var/www/:rw

@@ -111,7 +111,7 @@ jobs:
         docker compose exec php php --version
         docker compose exec php php -m
         echo "=== Database ==="
-        docker compose exec database mysql --version
+        docker compose exec database mariadb --version
         echo "=== WP-CLI ==="
         docker compose exec --user wp_php wpcli wp core version
 
