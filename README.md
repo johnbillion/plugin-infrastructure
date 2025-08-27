@@ -32,7 +32,7 @@ Plugins that use this library all use a similar setup in their workflows:
 	* Uses `reusable-acceptance-tests.yml`
 		* Installs PHP and WordPress
 		* Runs the build
-		* Runs acceptance testing with wp-browser
+		* Runs acceptance testing with Playwright
 
 ## Integration testing
 

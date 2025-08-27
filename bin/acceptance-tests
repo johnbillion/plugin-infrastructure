@@ -19,9 +19,8 @@ get_service_port() {
 
 # Prep:
 WP_PORT=$(get_service_port server 80)
-CHROME_PORT=$(get_service_port chrome 4444)
 DATABASE_PORT=$(get_service_port database 3306)
-WP_URL="http://host.docker.internal:${WP_PORT}"
+WP_URL="http://localhost:${WP_PORT}"
 
 wp() {
 	docker compose exec --user wp_php wpcli wp --url="${WP_URL}" "$@"
@@ -34,12 +33,6 @@ while ! docker compose exec -T database /bin/bash -c 'mysqladmin ping --user="${
 done
 while ! docker compose exec -T database /bin/bash -c 'mysql --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --execute="SHOW DATABASES;"' | grep 'information_schema' >/dev/null; do
 	echo 'ℹ️ Waiting for database server query...'
-	sleep 3
-done
-
-# Wait for Selenium:
-while ! curl -sSL "http://localhost:${CHROME_PORT}/wd/hub/status" 2>&1 | grep '"ready": true' >/dev/null; do
-	echo 'ℹ️ Waiting for Selenium...'
 	sleep 3
 done
 
@@ -64,7 +57,7 @@ wp rewrite structure '/%postname%/'
 # Activate the plugin under test:
 wp plugin activate ${PLUGIN}
 
-CODECEPT_ARGS=()
+PLAYWRIGHT_ARGS=()
 
 # Parse arguments
 while [[ "$#" -gt 0 ]]; do
@@ -73,23 +66,27 @@ while [[ "$#" -gt 0 ]]; do
 			cli_command="${1#--cli=}"
 			wp $cli_command
 			;;
-		--codecept-args=*)
-			CODECEPT_ARGS+=("${1#--codecept-args=}")
+		--playwright-args=*)
+			PLAYWRIGHT_ARGS+=("${1#--playwright-args=}")
 			;;
 		*)
 			echo "Unknown parameter passed: $1"
-			echo "Usage: $0 [--cli=<command>] [--codecept-args=<args>]"
+			echo "Usage: $0 [--cli=<command>] [--playwright-args=<args>]"
 			exit 1
 			;;
 	esac
 	shift
 done
 
+# Check if Playwright browsers are installed:
+if ! npx playwright install --list 2>/dev/null | grep -q "chromium"; then
+	echo 'ℹ️ Installing Playwright browsers...'
+	npx playwright install chromium
+fi
+
 # Run the acceptance tests:
 echo 'ℹ️ Running tests...'
-TEST_SITE_WEBDRIVER_PORT=$CHROME_PORT \
-	TEST_SITE_DATABASE_PORT=$DATABASE_PORT \
-	TEST_SITE_WP_URL=$WP_URL \
-	php -d error_reporting="E_ALL & ~E_DEPRECATED & ~E_STRICT" ./vendor/bin/codecept run acceptance -v "${CODECEPT_ARGS[@]}"
+WP_BASE_URL=$WP_URL \
+	npx playwright test --config tests/acceptance/playwright.config.ts "${PLAYWRIGHT_ARGS[@]}"
 
 echo '✅ Acceptance tests complete.'
