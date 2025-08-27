@@ -19,7 +19,6 @@ get_service_port() {
 
 # Prep:
 WP_PORT=$(get_service_port server 80)
-DATABASE_PORT=$(get_service_port database 3306)
 WP_URL="http://localhost:${WP_PORT}"
 
 wp() {
