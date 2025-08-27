@@ -86,6 +86,6 @@ fi
 # Run the acceptance tests:
 echo 'ℹ️ Running tests...'
 WP_BASE_URL=$WP_URL \
-	npx playwright test --config tests/acceptance/playwright.config.ts "${PLAYWRIGHT_ARGS[@]}"
+	npx playwright test --config tests/acceptance/utils/playwright.config.ts "${PLAYWRIGHT_ARGS[@]}"
 
 echo '✅ Acceptance tests complete.'
