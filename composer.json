@@ -16,7 +16,9 @@
 		}
 	],
 	"require": {
-		"php": ">=7.4"
+		"php": ">=7.4",
+		"roots/wordpress-core-installer": "1.100.0",
+		"roots/wordpress-full": "*"
 	},
 	"require-dev": {
 	},
