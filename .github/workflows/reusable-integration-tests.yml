@@ -12,10 +12,6 @@ on:
         required: true
         type: string
         description: PHP version to use in major.minor format (e.g. 8.0)
-      node:
-        required: true
-        type: boolean
-        description: Whether to run the Node build step
       cache:
         required: false
         type: boolean
@@ -83,21 +79,6 @@ jobs:
         fi
       env:
         WP_VERSION: ${{ inputs.wp }}
-
-    - name: Setup node
-      if: ${{ inputs.node }}
-      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-      with:
-        node-version-file: '.nvmrc'
-        cache: ${{ inputs.cache && 'npm' || '' }}
-
-    - name: Install node dependencies
-      if: ${{ inputs.node }}
-      run: npm ci
-
-    - name: Run the build
-      if: ${{ inputs.node }}
-      run: npm run build
 
     - name: Start Docker environment
       run: composer exec tests-start
