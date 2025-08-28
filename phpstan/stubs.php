@@ -19,9 +19,3 @@ define( 'LOGGED_IN_COOKIE', '' );
 define( 'SECURE_AUTH_COOKIE', '' );
 define( 'SITECOOKIEPATH', '' );
 
-// WPBrowser compatibility:
-
-class_alias(
-	'\\Codeception\\Test\\Unit',
-	'\\tad\\WPBrowser\\Compat\\Codeception\\Unit'
-);

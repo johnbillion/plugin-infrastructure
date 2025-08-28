@@ -41,7 +41,7 @@ Plugins that use this library all use a similar setup in their workflows:
 	* Uses `reusable-integration-tests.yml`
 		* Installs PHP and WordPress
 		* Runs the build
-		* Runs integration testing with wp-browser, once for:
+		* Runs integration testing with PHPUnit, once for:
 			* Single site
 			* Multisite
 
