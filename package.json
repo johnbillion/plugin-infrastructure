@@ -1,0 +1,32 @@
+{
+	"name": "@johnbillion/plugin-infrastructure",
+	"version": "2.0.0-beta.1",
+	"description": "Shared utilities for WordPress plugin development",
+	"license": "MIT",
+	"author": "John Blackbourn",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/johnbillion/plugin-infrastructure.git"
+	},
+	"homepage": "https://github.com/johnbillion/plugin-infrastructure",
+	"exports": {
+		"./acceptance": {
+			"require": "./dist/acceptance/index.js",
+			"types": "./dist/acceptance/index.d.ts"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"engines": {
+		"node": ">=18"
+	},
+	"scripts": {
+		"build": "tsc",
+		"prepublishOnly": "npm run build"
+	},
+	"devDependencies": {
+		"@types/node": "^24.3.0",
+		"typescript": "^5.9.2"
+	}
+}
