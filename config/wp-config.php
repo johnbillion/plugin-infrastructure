@@ -3,8 +3,6 @@
  * This is the configuration file that's used for the acceptance tests and WP-CLI commands.
  */
 
-mysqli_report( MYSQLI_REPORT_OFF );
-
 // Force the wp-admin area to use 'mobile' mode so list table row actions are shown.
 $GLOBALS['wp_filter'] = array(
 	'admin_body_class' => array(
