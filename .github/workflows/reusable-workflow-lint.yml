@@ -51,6 +51,7 @@ jobs:
         with:
           sarif_file: "${{steps.octoscan.outputs.sarif_output}}"
           category: octoscan
+          wait-for-processing: false
 
   zizmor:
     name: Zizmor
@@ -78,6 +79,7 @@ jobs:
         with:
           sarif_file: results.sarif
           category: zizmor
+          wait-for-processing: false
 
   poutine:
     name: Poutine
@@ -99,6 +101,7 @@ jobs:
       with:
         sarif_file: results.sarif
         category: poutine
+        wait-for-processing: false
 
   codeql:
     name: CodeQL
@@ -121,3 +124,4 @@ jobs:
       uses: github/codeql-action/analyze@3c3833e0f8c1c83d449a7478aa59c036a9165498 # v3.29.11
       with:
         category: codeql
+        wait-for-processing: false
