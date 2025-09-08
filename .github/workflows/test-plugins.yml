@@ -27,7 +27,7 @@ jobs:
           echo matrix='{"plugin":["query-monitor","user-switching","wp-crontrol"]}' >> "$GITHUB_OUTPUT"
 
       - name: Fetch the source PR data
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         id: source-pr-data
         with:
           retries: 2
