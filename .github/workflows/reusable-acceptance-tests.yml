@@ -84,15 +84,16 @@ jobs:
         WP_VERSION: ${{ inputs.wp }}
 
     - name: Setup node
-      if: ${{ inputs.node }}
       uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
       with:
         node-version-file: '.nvmrc'
         cache: ${{ inputs.cache && 'npm' || '' }}
 
     - name: Install node dependencies
-      if: ${{ inputs.node }}
       run: npm ci
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
 
     - name: Run the build
       if: ${{ inputs.node }}

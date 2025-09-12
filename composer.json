@@ -16,7 +16,11 @@
 		}
 	],
 	"require": {
-		"php": ">=7.4"
+		"php": ">=7.4",
+		"roots/wordpress-core-installer": "1.100.0",
+		"roots/wordpress-full": "*",
+		"wp-phpunit/wp-phpunit": "*",
+		"yoast/wp-test-utils": "1.2.0"
 	},
 	"require-dev": {
 	},

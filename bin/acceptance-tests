@@ -17,66 +17,17 @@ get_service_port() {
 
 # Prep:
 WP_PORT=$(get_service_port server 80)
-CHROME_PORT=$(get_service_port chrome 4444)
-DATABASE_PORT=$(get_service_port database 3306)
-WP_URL="http://host.docker.internal:${WP_PORT}"
+WP_URL="http://localhost:${WP_PORT}"
 
-wp() {
-	docker compose exec --user wp_php wpcli wp --url="${WP_URL}" "$@"
-}
-
-# Wait for Selenium:
-while ! curl -sSL "http://localhost:${CHROME_PORT}/wd/hub/status" 2>&1 | grep '"ready": true' >/dev/null; do
-	echo 'ℹ️ Waiting for Selenium...'
-	sleep 3
-done
-
-# Reset or install the test database:
-echo 'ℹ️ Installing database...'
-wp db reset --yes
-
-# Install WordPress:
-echo 'ℹ️ Installing WordPress...'
-wp core install \
-	--title="${PLUGIN}" \
-	--admin_user="admin" \
-	--admin_password="admin" \
-	--admin_email="admin@example.com" \
-	--skip-email
-echo "ℹ️ Home URL: $WP_URL"
-
-# Set a predictable permalink structure:
-wp rewrite structure '/%postname%/'
-
-# Activate the plugin under test:
-wp plugin activate ${PLUGIN}
-
-CODECEPT_ARGS=()
-
-# Parse arguments
-while [[ "$#" -gt 0 ]]; do
-	case $1 in
-		--cli=*)
-			cli_command="${1#--cli=}"
-			wp $cli_command
-			;;
-		--codecept-args=*)
-			CODECEPT_ARGS+=("${1#--codecept-args=}")
-			;;
-		*)
-			echo "Unknown parameter passed: $1"
-			echo "Usage: $0 [--cli=<command>] [--codecept-args=<args>]"
-			exit 1
-			;;
-	esac
-	shift
-done
+# Check if Playwright browsers are installed:
+if ! npx playwright install --list 2>/dev/null | grep -q "chromium"; then
+	echo 'ℹ️ Installing Playwright browsers...'
+	npx playwright install chromium
+fi
 
 # Run the acceptance tests:
 echo 'ℹ️ Running tests...'
-TEST_SITE_WEBDRIVER_PORT=$CHROME_PORT \
-	TEST_SITE_DATABASE_PORT=$DATABASE_PORT \
-	TEST_SITE_WP_URL=$WP_URL \
-	php -d error_reporting="E_ALL & ~E_DEPRECATED & ~E_STRICT" ./vendor/bin/codecept run acceptance -v "${CODECEPT_ARGS[@]}"
+WP_BASE_URL=$WP_URL \
+	npx playwright test --config tests/acceptance/utils/playwright.config.ts "$@"
 
 echo '✅ Acceptance tests complete.'

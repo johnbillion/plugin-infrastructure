@@ -12,10 +12,6 @@ on:
         required: true
         type: string
         description: PHP version to use in major.minor format (e.g. 8.0)
-      node:
-        required: true
-        type: boolean
-        description: Whether to run the Node build step
       cache:
         required: false
         type: boolean
@@ -77,27 +73,12 @@ jobs:
         elif [ "${WP_VERSION}" == "nightly" ]; then
           composer require --dev --update-with-dependencies roots/wordpress-full="dev-main"
         elif [[ "${WP_VERSION}" =~ ^[0-9]\.[0-9]$ ]]; then
-          composer require --dev --update-with-dependencies roots/wordpress-full="~${WP_VERSION}.0"
+          composer require --dev --update-with-dependencies roots/wordpress-full="~${WP_VERSION}.0" wp-phpunit/wp-phpunit="~${WP_VERSION}.0"
         else
-          composer require --dev --update-with-dependencies roots/wordpress-full="${WP_VERSION}"
+          composer require --dev --update-with-dependencies roots/wordpress-full="${WP_VERSION}" wp-phpunit/wp-phpunit="${WP_VERSION}"
         fi
       env:
         WP_VERSION: ${{ inputs.wp }}
-
-    - name: Setup node
-      if: ${{ inputs.node }}
-      uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-      with:
-        node-version-file: '.nvmrc'
-        cache: ${{ inputs.cache && 'npm' || '' }}
-
-    - name: Install node dependencies
-      if: ${{ inputs.node }}
-      run: npm ci
-
-    - name: Run the build
-      if: ${{ inputs.node }}
-      run: npm run build
 
     - name: Start Docker environment
       run: composer exec tests-start

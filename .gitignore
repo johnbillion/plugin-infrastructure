@@ -4,3 +4,4 @@
 # Directories
 /vendor
 /node_modules
+/dist

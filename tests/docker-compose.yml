@@ -80,16 +80,5 @@ services:
     # Keep the service alive:
     command: 'sleep infinity'
 
-  chrome:
-    image: seleniarm/standalone-chromium
-    container_name: ${COMPOSE_PROJECT_NAME}-chrome
-    depends_on:
-      - server
-    ports:
-      - 4444
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    shm_size: 2gb
-
 volumes:
   database:

@@ -6,7 +6,7 @@ set -eo pipefail
 
 # Args
 PLUGIN=${PWD##*/}
-CODECEPT_ARGS=$1
+PHPUNIT_ARGS=$@
 
 # Environment variables
 export COMPOSE_PROJECT_NAME=${PLUGIN}
@@ -19,14 +19,15 @@ docker compose exec \
 	--env COMPOSE_PROJECT_NAME \
 	-T \
 	--workdir "/var/www/html/wp-content/plugins/${PLUGIN}" php \
-	./vendor/bin/codecept run integration --env singlesite --skip-group ms-required "${CODECEPT_ARGS}" \
+	./vendor/bin/phpunit --exclude-group ms-required ${PHPUNIT_ARGS} \
 	< /dev/null
 
 docker compose exec \
 	--env COMPOSE_PROJECT_NAME \
+	--env WP_MULTISITE=1 \
 	-T \
 	--workdir "/var/www/html/wp-content/plugins/${PLUGIN}" php \
-	./vendor/bin/codecept run integration --env multisite --skip-group ms-excluded "${CODECEPT_ARGS}" \
+	./vendor/bin/phpunit --exclude-group ms-excluded ${PHPUNIT_ARGS} \
 	< /dev/null
 
 echo '✅ Integration tests complete.'
