@@ -12,7 +12,7 @@ PHPUNIT_ARGS=$@
 export COMPOSE_PROJECT_NAME=${PLUGIN}
 
 # Run the integration tests:
-echo 'ℹ️ Running tests...'
+echo 'ℹ️ Running integration tests...'
 
 # Why are these sent to /dev/null? See https://github.com/docker/compose/issues/8833
 docker compose exec \

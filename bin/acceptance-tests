@@ -26,7 +26,7 @@ if ! npx playwright install --list 2>/dev/null | grep -q "chromium"; then
 fi
 
 # Run the acceptance tests:
-echo 'ℹ️ Running tests...'
+echo 'ℹ️ Running acceptance tests...'
 WP_BASE_URL=$WP_URL \
 	npx playwright test --config tests/acceptance/playwright.config.ts "$@"
 
