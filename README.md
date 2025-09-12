@@ -13,12 +13,15 @@ Provided without support, warranty, guarantee, backwards compatibility, fitness 
 
 ## Features
 
+* Containerised test environment
+* Support for an npm build step
 * Acceptance testing
 * Integration testing
 * Coding standards testing
 * Static analysis
 * Workflow file linting
 * Deployment to WordPress.org
+* GitHub milestone management
 * Build provenance attestation
 * SLSA v1.0 Build level 3 facilitation
 * Ongoing supply chain assurance
