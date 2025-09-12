@@ -28,10 +28,11 @@ jobs:
           node-version-file: '.nvmrc'
           registry-url: https://registry.npmjs.org/
 
+      - name: Upgrade npm for OIDC support
+        run: npm install -g npm@latest
+
       - name: Install
         run: npm ci --no-audit --no-fund
 
       - name: Publish via OIDC trusted publishing
         run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ''
