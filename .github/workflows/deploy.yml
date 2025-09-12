@@ -28,6 +28,6 @@ jobs:
           node-version-file: '.nvmrc'
           registry-url: https://registry.npmjs.org/
 
-      - run: npm install
+      - run: npm ci --no-audit --no-fund
 
       - run: npm publish --access public

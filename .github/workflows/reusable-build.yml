@@ -77,7 +77,7 @@ jobs:
 
     - name: Install Dependencies
       if: ${{ inputs.node }}
-      run: npm ci
+      run: npm ci --no-audit --no-fund
 
     - name: Generate autoload file
       if: ${{ inputs.vendor }}

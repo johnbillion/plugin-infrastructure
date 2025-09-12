@@ -90,7 +90,7 @@ jobs:
         cache: ${{ inputs.cache && 'npm' || '' }}
 
     - name: Install node dependencies
-      run: npm ci
+      run: npm ci --no-audit --no-fund
 
     - name: Install Playwright browsers
       run: npx playwright install --with-deps chromium
