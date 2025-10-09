@@ -35,7 +35,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Publish via OIDC trusted publishing
-        run: |
+        run: | #shell
           if [[ "$GITHUB_REF_NAME" == *"-"* ]]; then
             npm publish --access public --tag beta
           else

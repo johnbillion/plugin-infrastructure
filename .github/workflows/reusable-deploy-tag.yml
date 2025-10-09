@@ -119,7 +119,7 @@ jobs:
       id: semvers
       env:
         VERSION: ${{ inputs.version }}
-      run: |
+      run: | #shell
         IFS='.' read -r -a parts <<< "$VERSION"
         {
           echo "major=$((parts[0] + 1)).0.0"

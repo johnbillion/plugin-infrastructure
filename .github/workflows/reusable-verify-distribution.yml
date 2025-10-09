@@ -33,14 +33,14 @@ jobs:
           EXPECTED_OWNER: ${{ inputs.owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PLUGIN_SLUG: ${{ inputs.plugin }}
-        run: |
+        run: | #shell
           gh attestation verify "${PLUGIN_SLUG}.zip" --owner "$EXPECTED_OWNER"
 
       - name: Show SHA256 hash on failure
         if: failure() && steps.verify-attestation.outcome == 'failure'
         env:
           PLUGIN_SLUG: ${{ inputs.plugin }}
-        run: |
+        run: | #shell
           echo "Attestation verification failed. SHA256 hash of downloaded file:"
           sha256sum "${PLUGIN_SLUG}.zip"
 
