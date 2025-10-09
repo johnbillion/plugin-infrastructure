@@ -92,9 +92,6 @@ jobs:
     - name: Install node dependencies
       run: npm ci --no-audit --no-fund
 
-    - name: Install Playwright browsers
-      run: npx playwright install --with-deps chromium
-
     - name: Run the build
       if: ${{ inputs.node }}
       run: npm run build
