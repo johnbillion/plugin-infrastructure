@@ -100,6 +100,10 @@ jobs:
             sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-workflow-lint\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-workflow-lint.yml@${SHA_REF}|g" .github/workflows/lint-workflows.yml
             grep -qF "${HEAD_REPO}/.github/workflows/reusable-workflow-lint.yml@${SHA_REF}" .github/workflows/lint-workflows.yml || { echo "Error: Replacement failed in lint-workflows.yml"; exit 1; }
           fi
+          if [ -f .github/workflows/verify-distribution.yml ]; then
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-verify-distribution\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-verify-distribution.yml@${SHA_REF}|g" .github/workflows/verify-distribution.yml
+            grep -qF "${HEAD_REPO}/.github/workflows/reusable-verify-distribution.yml@${SHA_REF}" .github/workflows/verify-distribution.yml || { echo "Error: Replacement failed in verify-distribution.yml"; exit 1; }
+          fi
           if [ "${HEAD_REPO}" == "johnbillion/plugin-infrastructure" ]; then
             sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"dev-${HEAD_BRANCH}\"|g" composer.json
             grep -qF "\"johnbillion/plugin-infrastructure\": \"dev-${HEAD_BRANCH}\"" composer.json || { echo "Error: Replacement failed in composer.json"; exit 1; }
