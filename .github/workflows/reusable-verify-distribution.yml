@@ -16,16 +16,20 @@ on:
 permissions: {}
 
 jobs:
-  wordpress-org:
-    name: WordPress.org
+  wordpress-org-plugin:
+    name: WordPress.org Plugin
     runs-on: ubuntu-latest
     permissions: {}
     steps:
       - name: Fetch plugin from WordPress.org
         env:
           PLUGIN_SLUG: ${{ inputs.plugin }}
-        run: |
-          curl --output "${PLUGIN_SLUG}.zip" "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.zip"
+        run: | #shell
+          curl \
+            --output "${PLUGIN_SLUG}.zip" \
+            --fail \
+            --user-agent "WordPress/6.8.0; http://localhost:8889" \
+            "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.zip"
 
       - name: Verify build provenance attestation
         id: verify-attestation
@@ -50,4 +54,108 @@ jobs:
         with:
           name: "${{ inputs.plugin }}-wordpress-org"
           path: "${{ inputs.plugin }}.zip"
+          if-no-files-found: error
+
+  wordpress-org-plugin-info:
+    name: WordPress.org Plugin Info
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Fetch plugin info from WordPress.org
+        id: fetch-plugin-info
+        env:
+          PLUGIN_SLUG: ${{ inputs.plugin }}
+        run: | #shell
+          curl \
+            --output plugin-info.json \
+            --fail \
+            --user-agent "WordPress/6.8.0; http://localhost:8889" \
+            "https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request%5Bslug%5D=${PLUGIN_SLUG}"
+
+      - name: Fetch latest stable tag from GitHub
+        id: fetch-github-tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: | #shell
+          LATEST_TAG=$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq '.tag_name')
+          echo "latest_tag=${LATEST_TAG}" >> "$GITHUB_OUTPUT"
+          echo "Latest stable tag: ${LATEST_TAG}"
+
+      - name: Verify plugin info
+        env:
+          LATEST_TAG: ${{ steps.fetch-github-tag.outputs.latest_tag }}
+          PLUGIN_SLUG: ${{ inputs.plugin }}
+        run: | #shell
+          echo "Verifying plugin info against latest tag: ${LATEST_TAG}"
+          echo ""
+
+          # Extract version from plugin info
+          PLUGIN_VERSION=$(jq -r '.version' plugin-info.json)
+          echo "Plugin version from WordPress.org: ${PLUGIN_VERSION}"
+          echo ""
+
+          FAILED=false
+
+          echo "Verifying version matches latest tag"
+          if [ "${PLUGIN_VERSION}" != "${LATEST_TAG}" ]; then
+            echo "  ✗ FAILED: Version mismatch"
+            echo "    Expected: ${LATEST_TAG}"
+            echo "    Got: ${PLUGIN_VERSION}"
+            FAILED=true
+          else
+            echo "  ✓ Passed"
+          fi
+          echo ""
+
+          echo "Verifying download_link URL"
+          DOWNLOAD_LINK=$(jq -r '.download_link' plugin-info.json)
+          EXPECTED_DOWNLOAD_LINK="https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.${PLUGIN_VERSION}.zip"
+          if [ "${DOWNLOAD_LINK}" != "${EXPECTED_DOWNLOAD_LINK}" ]; then
+            echo "  ✗ FAILED: download_link mismatch"
+            echo "    Expected: ${EXPECTED_DOWNLOAD_LINK}"
+            echo "    Got: ${DOWNLOAD_LINK}"
+            FAILED=true
+          else
+            echo "  ✓ Passed"
+          fi
+          echo ""
+
+          echo "Verifying version exists in versions object with correct URL"
+          VERSION_URL=$(jq -r --arg version "${PLUGIN_VERSION}" '.versions[$version]' plugin-info.json)
+          if [ "${VERSION_URL}" == "null" ] || [ -z "${VERSION_URL}" ]; then
+            echo "  ✗ FAILED: Version '${PLUGIN_VERSION}' not found in versions object"
+            FAILED=true
+          elif [ "${VERSION_URL}" != "${EXPECTED_DOWNLOAD_LINK}" ]; then
+            echo "  ✗ FAILED: versions[${PLUGIN_VERSION}] URL mismatch"
+            echo "    Expected: ${EXPECTED_DOWNLOAD_LINK}"
+            echo "    Got: ${VERSION_URL}"
+            FAILED=true
+          else
+            echo "  ✓ Passed"
+          fi
+          echo ""
+
+          echo "Verifying no versions greater than latest tag"
+          HIGHEST_VERSION=$(jq -r '.versions | keys[] | select(. != "trunk")' plugin-info.json | sort -V | tail -n 1)
+          if [ "${HIGHEST_VERSION}" != "${LATEST_TAG}" ]; then
+            echo "  ✗ FAILED: Found version greater than latest tag"
+            echo "    Expected: ${LATEST_TAG}"
+            echo "    Got: ${HIGHEST_VERSION}"
+            FAILED=true
+          else
+            echo "  ✓ Passed"
+          fi
+          echo ""
+
+          if [ "${FAILED}" = true ]; then
+            exit 1
+          fi
+
+      - name: Save plugin info as artifact
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: plugin-info.json
+          path: plugin-info.json
           if-no-files-found: error
