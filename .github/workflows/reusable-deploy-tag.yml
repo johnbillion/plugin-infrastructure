@@ -81,6 +81,12 @@ jobs:
       env:
         README: ${{ inputs.readme }}
 
+    - name: Install SVN
+      run: | #shell
+        sudo rm -f /var/lib/man-db/auto-update
+        sudo apt-get install -y --no-install-recommends subversion
+        svn --version
+
     - name: WordPress Plugin Deploy
       uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
       id: deploy
