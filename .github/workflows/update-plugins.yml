@@ -1,0 +1,160 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+
+name: Update Plugins
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      TAG_NAME:
+        description: The tag name to update to
+        required: true
+
+permissions: {}
+
+jobs:
+  get-plugins:
+    name: Get plugins
+    permissions: {}
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plugins.outputs.matrix }}
+      source-tag-data: ${{ steps.source-tag-data.outputs.result }}
+    steps:
+      - name: Fetch the source tag data
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        id: source-tag-data
+        with:
+          retries: 2
+          script: | #js
+            const tagName = process.env.TAG_NAME;
+
+            // Get the tag reference
+            const tagRef = await github.rest.git.getRef({
+              owner: 'johnbillion',
+              repo: 'plugin-infrastructure',
+              ref: `tags/${tagName}`,
+            });
+
+            const tagSha = tagRef.data.object.sha;
+
+            return {
+              tag_name: tagName,
+              tag_sha: tagSha,
+              tag_url: `https://github.com/johnbillion/plugin-infrastructure/releases/tag/${tagName}`,
+            };
+        env:
+          TAG_NAME: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.TAG_NAME }}
+
+      - name: Get the list of plugins to update
+        id: plugins
+        run: | #shell
+          echo matrix='{"plugin":["query-monitor","user-switching","wp-crontrol"]}' >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          repository: johnbillion/plugin-infrastructure
+          token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 0
+
+  open-pr:
+    name: Open PR / ${{ matrix.plugin }}
+    permissions: {}
+    needs:
+      - get-plugins
+    strategy:
+      matrix: ${{ fromJSON( needs.get-plugins.outputs.matrix ) }}
+      fail-fast: false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          repository: johnbillion/${{ matrix.plugin }}
+          token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
+          persist-credentials: false
+
+      - name: Setup node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Update references to stable tag
+        run: | #shell
+          if [ -f .github/workflows/acceptance-tests.yml ]; then
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-acceptance-tests\.yml@.*$|johnbillion/plugin-infrastructure/.github/workflows/reusable-acceptance-tests.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/acceptance-tests.yml
+            grep -qF "johnbillion/plugin-infrastructure/.github/workflows/reusable-acceptance-tests.yml@${TAG_SHA}" .github/workflows/acceptance-tests.yml || { echo "Error: Replacement failed in acceptance-tests.yml"; exit 1; }
+          fi
+          if [ -f .github/workflows/build.yml ]; then
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-build\.yml@.*$|johnbillion/plugin-infrastructure/.github/workflows/reusable-build.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/build.yml
+            grep -qF "johnbillion/plugin-infrastructure/.github/workflows/reusable-build.yml@${TAG_SHA}" .github/workflows/build.yml || { echo "Error: Replacement failed in build.yml"; exit 1; }
+          fi
+          if [ -f .github/workflows/coding-standards.yml ]; then
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-coding-standards\.yml@.*$|johnbillion/plugin-infrastructure/.github/workflows/reusable-coding-standards.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/coding-standards.yml
+            grep -qF "johnbillion/plugin-infrastructure/.github/workflows/reusable-coding-standards.yml@${TAG_SHA}" .github/workflows/coding-standards.yml || { echo "Error: Replacement failed in coding-standards.yml"; exit 1; }
+          fi
+          if [ -f .github/workflows/deploy-assets.yml ]; then
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-deploy-assets\.yml@.*$|johnbillion/plugin-infrastructure/.github/workflows/reusable-deploy-assets.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/deploy-assets.yml
+            grep -qF "johnbillion/plugin-infrastructure/.github/workflows/reusable-deploy-assets.yml@${TAG_SHA}" .github/workflows/deploy-assets.yml || { echo "Error: Replacement failed in deploy-assets.yml"; exit 1; }
+          fi
+          if [ -f .github/workflows/deploy-tag.yml ]; then
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-deploy-tag\.yml@.*$|johnbillion/plugin-infrastructure/.github/workflows/reusable-deploy-tag.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/deploy-tag.yml
+            grep -qF "johnbillion/plugin-infrastructure/.github/workflows/reusable-deploy-tag.yml@${TAG_SHA}" .github/workflows/deploy-tag.yml || { echo "Error: Replacement failed in deploy-tag.yml"; exit 1; }
+          fi
+          if [ -f .github/workflows/integration-tests.yml ]; then
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-integration-tests\.yml@.*$|johnbillion/plugin-infrastructure/.github/workflows/reusable-integration-tests.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/integration-tests.yml
+            grep -qF "johnbillion/plugin-infrastructure/.github/workflows/reusable-integration-tests.yml@${TAG_SHA}" .github/workflows/integration-tests.yml || { echo "Error: Replacement failed in integration-tests.yml"; exit 1; }
+          fi
+          if [ -f .github/workflows/static-analysis.yml ]; then
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-static-analysis\.yml@.*$|johnbillion/plugin-infrastructure/.github/workflows/reusable-static-analysis.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/static-analysis.yml
+            grep -qF "johnbillion/plugin-infrastructure/.github/workflows/reusable-static-analysis.yml@${TAG_SHA}" .github/workflows/static-analysis.yml || { echo "Error: Replacement failed in static-analysis.yml"; exit 1; }
+          fi
+          if [ -f .github/workflows/lint-workflows.yml ]; then
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-workflow-lint\.yml@.*$|johnbillion/plugin-infrastructure/.github/workflows/reusable-workflow-lint.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/lint-workflows.yml
+            grep -qF "johnbillion/plugin-infrastructure/.github/workflows/reusable-workflow-lint.yml@${TAG_SHA}" .github/workflows/lint-workflows.yml || { echo "Error: Replacement failed in lint-workflows.yml"; exit 1; }
+          fi
+          if [ -f .github/workflows/verify-distribution.yml ]; then
+            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-verify-distribution\.yml@.*$|johnbillion/plugin-infrastructure/.github/workflows/reusable-verify-distribution.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/verify-distribution.yml
+            grep -qF "johnbillion/plugin-infrastructure/.github/workflows/reusable-verify-distribution.yml@${TAG_SHA}" .github/workflows/verify-distribution.yml || { echo "Error: Replacement failed in verify-distribution.yml"; exit 1; }
+          fi
+
+          # Update composer.json to use the stable tag
+          sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"${TAG_NAME}\"|g" composer.json
+          grep -qF "\"johnbillion/plugin-infrastructure\": \"${TAG_NAME}\"" composer.json || { echo "Error: Replacement failed in composer.json"; exit 1; }
+
+          # Update package.json to use the stable tag
+          sed -i "s|\"@johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"@johnbillion/plugin-infrastructure\": \"${TAG_NAME}\"|g" package.json
+          grep -qF "\"@johnbillion/plugin-infrastructure\": \"${TAG_NAME}\"" package.json || { echo "Error: Replacement failed in package.json"; exit 1; }
+          npm install --package-lock-only
+        env:
+          TAG_NAME: ${{ fromJson( needs.get-plugins.outputs.source-tag-data ).tag_name }}
+          TAG_SHA: ${{ fromJson( needs.get-plugins.outputs.source-tag-data ).tag_sha }}
+
+      - name: Check the changed files
+        run: | #shell
+          git diff --color
+          git status
+
+      - name: Open PR
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v6
+        id: cpr
+        with:
+          token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
+          commit-message: Update plugin-nfrastructure to ${{ env.TAG_NAME }}
+          title: Update Plugin Infrastructure to ${{ env.TAG_NAME }}
+          body: | #markdown
+            This PR updates [Plugin Infrastructure](https://github.com/johnbillion/plugin-infrastructure) to version `${{ env.TAG_NAME }}`.
+
+            See ${{ env.TAG_URL }} for release details.
+
+            This is an automated PR created by [the Update Plugins workflow](https://github.com/johnbillion/plugin-infrastructure/actions/workflows/update-plugins.yml).
+          branch: update-plugin-infrastructure/${{ env.TAG_NAME }}
+          draft: false
+        env:
+          TAG_NAME: ${{ fromJson( needs.get-plugins.outputs.source-tag-data ).tag_name }}
+          TAG_SHA: ${{ fromJson( needs.get-plugins.outputs.source-tag-data ).tag_sha }}
+          TAG_URL: ${{ fromJson( needs.get-plugins.outputs.source-tag-data ).tag_url }}
