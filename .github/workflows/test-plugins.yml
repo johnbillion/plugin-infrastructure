@@ -54,7 +54,6 @@ jobs:
       - name: Checkout source branch
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          ref: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
           persist-credentials: true
 
       - name: Setup node
@@ -74,12 +73,10 @@ jobs:
         run: | #shell
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "${BRANCH_NAME}-built"
+          git checkout -b "${GITHUB_HEAD_REF}-built"
           git add -f dist/
           git commit -m "Built assets for testing"
-          git push origin "${BRANCH_NAME}-built" --force
-        env:
-          BRANCH_NAME: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
+          git push origin "${GITHUB_HEAD_REF}-built" --force
 
   open-pr:
     name: Open PR / ${{ matrix.plugin }}
