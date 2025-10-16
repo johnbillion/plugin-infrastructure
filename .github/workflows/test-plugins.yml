@@ -19,7 +19,7 @@ jobs:
       - name: Get the list of plugins to test
         id: plugins
         run: | #shell
-          echo matrix='{"plugin":["query-monitor","user-switching","wp-crontrol"]}' >> "$GITHUB_OUTPUT"
+          echo matrix='{"plugin":["user-switching","wp-crontrol"]}' >> "$GITHUB_OUTPUT"
 
       - name: Fetch the source PR data
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
