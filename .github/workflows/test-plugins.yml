@@ -3,58 +3,56 @@
 name: Test Plugins
 on:
   pull_request:
-  workflow_dispatch:
-    inputs:
-      PR_NUMBER:
-        description: The PR number to test
-        required: true
 
 permissions: {}
 
 jobs:
-  get-plugins:
-    name: Get plugins
-    permissions: {}
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'johnbillion/plugin-infrastructure' || github.event_name == 'workflow_dispatch'
+  build-branch:
+    name: Build test branch
+    if: github.event.pull_request.head.repo.full_name == 'johnbillion/plugin-infrastructure'
+    permissions:
+      contents: write
     runs-on: ubuntu-24.04
-    outputs:
-      matrix: ${{ steps.plugins.outputs.matrix }}
-      source-pr-data: ${{ steps.source-pr-data.outputs.result }}
+    timeout-minutes: 5
     steps:
-      - name: Get the list of plugins to test
-        id: plugins
-        run: | #shell
-          echo matrix='{"plugin":["query-monitor","user-switching","wp-crontrol"]}' >> "$GITHUB_OUTPUT"
-
-      - name: Fetch the source PR data
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-        id: source-pr-data
+      - name: Checkout source branch
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          retries: 2
-          script: | #js
-            const pr = await github.rest.pulls.get({
-              owner: 'johnbillion',
-              repo: 'plugin-infrastructure',
-              pull_number: process.env.SOURCE_PR_NUMBER,
-            });
-            return {
-              head_repo: pr.data.head.repo.full_name,
-              head_branch: pr.data.head.ref,
-              head_sha: pr.data.head.sha,
-              pr_number: pr.data.number,
-              pr_link: pr.data.html_url,
-            };
-          github-token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
-        env:
-          SOURCE_PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.event.inputs.PR_NUMBER }}
+          persist-credentials: true
+
+      - name: Setup node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install dependencies
+        run: | #shell
+          npm install
+
+      - name: Build package
+        run: | #shell
+          npm run build
+
+      - name: Create and push built branch
+        run: | #shell
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${GITHUB_HEAD_REF}-built"
+          git add -f dist/
+          git commit -m "Built assets for testing"
+          git push origin "${GITHUB_HEAD_REF}-built" --force
 
   open-pr:
     name: Open PR / ${{ matrix.plugin }}
-    permissions: {}
+    permissions:
+      pull-requests: write
     needs:
-      - get-plugins
+      - build-branch
     strategy:
-      matrix: ${{ fromJSON( needs.get-plugins.outputs.matrix ) }}
+      matrix:
+        plugin:
+          - user-switching
+          - wp-crontrol
       fail-fast: false
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -66,52 +64,25 @@ jobs:
           token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
           persist-credentials: false
 
-      - name: Update tests references
+      - name: Update workflow files
         run: | #shell
-          if [ -f .github/workflows/acceptance-tests.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-acceptance-tests\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-acceptance-tests.yml@${SHA_REF}|g" .github/workflows/acceptance-tests.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-acceptance-tests.yml@${SHA_REF}" .github/workflows/acceptance-tests.yml || { echo "Error: Replacement failed in acceptance-tests.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/build.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-build\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-build.yml@${SHA_REF}|g" .github/workflows/build.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-build.yml@${SHA_REF}" .github/workflows/build.yml || { echo "Error: Replacement failed in build.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/coding-standards.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-coding-standards\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-coding-standards.yml@${SHA_REF}|g" .github/workflows/coding-standards.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-coding-standards.yml@${SHA_REF}" .github/workflows/coding-standards.yml || { echo "Error: Replacement failed in coding-standards.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/deploy-assets.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-deploy-assets\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-deploy-assets.yml@${SHA_REF}|g" .github/workflows/deploy-assets.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-deploy-assets.yml@${SHA_REF}" .github/workflows/deploy-assets.yml || { echo "Error: Replacement failed in deploy-assets.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/deploy-tag.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-deploy-tag\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-deploy-tag.yml@${SHA_REF}|g" .github/workflows/deploy-tag.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-deploy-tag.yml@${SHA_REF}" .github/workflows/deploy-tag.yml || { echo "Error: Replacement failed in deploy-tag.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/integration-tests.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-integration-tests\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-integration-tests.yml@${SHA_REF}|g" .github/workflows/integration-tests.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-integration-tests.yml@${SHA_REF}" .github/workflows/integration-tests.yml || { echo "Error: Replacement failed in integration-tests.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/static-analysis.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-static-analysis\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-static-analysis.yml@${SHA_REF}|g" .github/workflows/static-analysis.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-static-analysis.yml@${SHA_REF}" .github/workflows/static-analysis.yml || { echo "Error: Replacement failed in static-analysis.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/lint-workflows.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-workflow-lint\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-workflow-lint.yml@${SHA_REF}|g" .github/workflows/lint-workflows.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-workflow-lint.yml@${SHA_REF}" .github/workflows/lint-workflows.yml || { echo "Error: Replacement failed in lint-workflows.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/verify-distribution.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-verify-distribution\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-verify-distribution.yml@${SHA_REF}|g" .github/workflows/verify-distribution.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-verify-distribution.yml@${SHA_REF}" .github/workflows/verify-distribution.yml || { echo "Error: Replacement failed in verify-distribution.yml"; exit 1; }
-          fi
-          if [ "${HEAD_REPO}" == "johnbillion/plugin-infrastructure" ]; then
-            sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"dev-${HEAD_BRANCH}\"|g" composer.json
-            grep -qF "\"johnbillion/plugin-infrastructure\": \"dev-${HEAD_BRANCH}\"" composer.json || { echo "Error: Replacement failed in composer.json"; exit 1; }
-          fi
-        env:
-          HEAD_BRANCH: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
-          HEAD_REPO: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_repo }}
-          SHA_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_sha }}
+          find .github/workflows -name '*.yml' -type f -exec sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/\([^@]*\)@.*$|johnbillion/plugin-infrastructure/.github/workflows/\1@${GITHUB_SHA}|g" {} \;
+
+      - name: Update Composer dependencies
+        if: hashFiles('composer.json') != ''
+        run: | #shell
+          sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"dev-${GITHUB_HEAD_REF}-built\"|g" composer.json
+
+      - name: Setup node
+        if: hashFiles('.nvmrc') != ''
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Update Node dependencies
+        if: hashFiles('package.json') != ''
+        run: | #shell
+          npm install "@johnbillion/plugin-infrastructure@github:johnbillion/plugin-infrastructure#${GITHUB_HEAD_REF}-built" --save-exact --save-dev --package-lock-only
 
       - name: Check the changed files
         run: | #shell
@@ -123,63 +94,16 @@ jobs:
         id: cpr
         with:
           token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
-          commit-message: Update Plugin Infrastructure to ${{ env.SHA_REF }}
-          title: Test with ${{ env.HEAD_REPO }}@${{ env.BRANCH_REF }}
+          commit-message: Update Plugin Infrastructure to ${{ github.event.pull_request.head.sha }}
+          title: Test with plugin-infrastructure@${{ github.event.pull_request.head.ref }}
           body: | #markdown
-            This PR updates [Plugin Infrastructure](https://github.com/johnbillion/plugin-infrastructure) to `${{ env.HEAD_REPO }}@${{ env.BRANCH_REF }}` for testing purposes. This PR should not be merged.
+            This PR switches plugin-infrastructure to https://github.com/johnbillion/plugin-infrastructure/tree/${{ github.event.pull_request.head.ref }}-built for testing purposes. This PR should not be merged.
 
-            See ${{ env.PR_LINK }} for more details.
+            See https://github.com/johnbillion/plugin-infrastructure/pull/${{ github.event.pull_request.number }} for more details.
 
             This is an automated PR created by [the Test Plugins workflow](https://github.com/johnbillion/plugin-infrastructure/actions/workflows/test-plugins.yml).
-          branch: update-plugin-infrastructure/${{ env.HEAD_REPO }}/${{ env.BRANCH_REF }}
+          branch: test-plugin-infrastructure/${{ github.event.pull_request.head.ref }}
           draft: true
-        env:
-          HEAD_REPO: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_repo }}
-          SHA_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_sha }}
-          BRANCH_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
-          PR_LINK: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).pr_link }}
-
-      - name: Add PR link to the summary
-        run: | #shell
-          echo "${URL}" >> "$GITHUB_STEP_SUMMARY"
-        env:
-          URL: ${{ steps.cpr.outputs.pull-request-url }}
-
-      - name: Write plugin PR data to JSON file
-        run: | #shell
-          echo "${PR_DATA}" > plugin-pr-data.json
-        env:
-          PR_DATA: ${{ toJson(steps.cpr.outputs) }}
-
-      - name: Save plugin PR data as an artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: plugin-pr-data-${{ matrix.plugin }}
-          path: plugin-pr-data.json
-          if-no-files-found: error
-
-  label:
-    name: Label PR / ${{ matrix.plugin }}
-    permissions:
-      pull-requests: write
-    runs-on: ubuntu-24.04
-    needs:
-      - get-plugins
-      - open-pr
-    timeout-minutes: 5
-    strategy:
-      matrix: ${{ fromJSON( needs.get-plugins.outputs.matrix ) }}
-      fail-fast: false
-    steps:
-      - name: Download plugin PR data artifact
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
-        with:
-          name: plugin-pr-data-${{ matrix.plugin }}
-
-      - name: Read the plugin PR data
-        id: plugin-pr-data
-        run: | #shell
-          echo "pr_data=$(jq -c . plugin-pr-data.json)" >> "$GITHUB_OUTPUT"
 
       - name: Set labels
         run: | #shell
@@ -187,61 +111,6 @@ jobs:
           gh --repo johnbillion/plugin-infrastructure pr edit "${SOURCE_PR_NUMBER}" --add-label "pr:${PLUGIN}:${PLUGIN_PR_NUMBER}"
         env:
           GH_TOKEN: ${{ github.token }}
-          SOURCE_PR_NUMBER: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).pr_number }}
+          SOURCE_PR_NUMBER: ${{ github.event.pull_request.number }}
           PLUGIN: ${{ matrix.plugin }}
-          PLUGIN_PR_NUMBER: ${{ fromJson( steps.plugin-pr-data.outputs.pr_data ).pull-request-number }}
-
-  check-status:
-    name: Check PR / ${{ matrix.plugin }}
-    permissions: {}
-    needs:
-      - get-plugins
-      - open-pr
-      - label
-    strategy:
-      matrix: ${{ fromJSON( needs.get-plugins.outputs.matrix ) }}
-      fail-fast: false
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    steps:
-      - name: Download plugin PR data artifact
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
-        with:
-          name: plugin-pr-data-${{ matrix.plugin }}
-
-      - name: Read the plugin PR data
-        id: plugin-pr-data
-        run: | #shell
-          echo "pr_data=$(jq -c . plugin-pr-data.json)" >> "$GITHUB_OUTPUT"
-
-      - name: Check the status of workflows
-        run: | #shell
-          echo "ℹ️ See the checks at https://github.com/johnbillion/${PLUGIN}/pull/${PLUGIN_PR_NUMBER}/checks"
-
-          while true; do
-            gh api "repos/johnbillion/${PLUGIN}/actions/runs?head_sha=${PLUGIN_HEAD_SHA}" --jq '[.workflow_runs[]]' > workflow_runs.json
-
-            failed="$(jq 'map(select(.conclusion == "failure")) | length' workflow_runs.json)"
-            cancelled="$(jq 'map(select(.conclusion == "cancelled")) | length' workflow_runs.json)"
-            in_progress="$(jq 'map(select(.status != "completed")) | length' workflow_runs.json)"
-            total="$(jq 'length' workflow_runs.json)"
-
-            if [ "$failed" -gt 0 ]; then
-              echo "❌ Some workflows failed."
-              exit 1
-            elif [ "$cancelled" -gt 0 ]; then
-              echo "❌ Some workflows were cancelled."
-              exit 1
-            elif [ "$in_progress" -gt 0 ]; then
-              echo "ℹ️ ${in_progress}/${total} workflows are still in progress. Waiting..."
-              sleep 10
-            else
-              echo "✅ ${total}/${total} workflows passed."
-              break
-            fi
-          done
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PLUGIN_PR_NUMBER: ${{ fromJson( steps.plugin-pr-data.outputs.pr_data ).pull-request-number }}
-          PLUGIN_HEAD_SHA: ${{ fromJson( steps.plugin-pr-data.outputs.pr_data ).pull-request-head-sha }}
-          PLUGIN: ${{ matrix.plugin }}
+          PLUGIN_PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
