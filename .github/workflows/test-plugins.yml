@@ -9,6 +9,7 @@ permissions: {}
 jobs:
   build-branch:
     name: Build test branch
+    if: github.event.pull_request.head.repo.full_name == 'johnbillion/plugin-infrastructure'
     permissions:
       contents: write
     runs-on: ubuntu-24.04
