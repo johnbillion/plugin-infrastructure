@@ -64,4 +64,15 @@ jobs:
                 ref: `heads/${pr.data.head.ref}`,
               });
             }
+
+            // Delete the -built branch from plugin-infrastructure
+            try {
+              await github.rest.git.deleteRef({
+                owner: 'johnbillion',
+                repo: 'plugin-infrastructure',
+                ref: `heads/${pr.data.head.ref}-built`,
+              });
+            } catch (error) {
+              console.log(`No -built branch to delete: ${error.message}`);
+            }
           github-token: ${{ secrets.PLUGINS_PUSH_TOKEN }}

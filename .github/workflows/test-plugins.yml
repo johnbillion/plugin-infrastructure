@@ -42,11 +42,51 @@ jobs:
         env:
           SOURCE_PR_NUMBER: ${{ github.event.pull_request.number }}
 
+  build-branch:
+    name: Build test branch
+    permissions:
+      contents: write
+    needs:
+      - get-plugins
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
+          persist-credentials: true
+
+      - name: Setup node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install dependencies
+        run: | #shell
+          npm install
+
+      - name: Build package
+        run: | #shell
+          npm run build
+
+      - name: Create and push built branch
+        run: | #shell
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${BRANCH_NAME}-built"
+          git add dist/
+          git commit -m "Built assets for testing"
+          git push origin "${BRANCH_NAME}-built" --force
+        env:
+          BRANCH_NAME: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
+
   open-pr:
     name: Open PR / ${{ matrix.plugin }}
     permissions: {}
     needs:
       - get-plugins
+      - build-branch
     strategy:
       matrix: ${{ fromJSON( needs.get-plugins.outputs.matrix ) }}
       fail-fast: false
@@ -54,7 +94,7 @@ jobs:
     timeout-minutes: 5
     env:
       SHA_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_sha }}
-      BRANCH_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
+      BRANCH_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}-built
       PR_LINK: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).pr_link }}
     steps:
       - name: Checkout repository

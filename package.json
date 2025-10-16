@@ -11,17 +11,20 @@
 	"homepage": "https://github.com/johnbillion/plugin-infrastructure",
 	"exports": {
 		"./acceptance": {
-			"types": "./src/acceptance/index.ts",
-			"default": "./src/acceptance/index.ts"
+			"require": "./dist/acceptance/index.js",
+			"types": "./dist/acceptance/index.d.ts"
 		}
 	},
 	"files": [
-		"src"
+		"dist"
 	],
 	"engines": {
 		"node": ">=20"
 	},
-	"scripts": {},
+	"scripts": {
+		"build": "tsc",
+		"prepublishOnly": "npm run build"
+	},
 	"devDependencies": {
 		"@types/node": "^24.3.0",
 		"typescript": "^5.9.2"
