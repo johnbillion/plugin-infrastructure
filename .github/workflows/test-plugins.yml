@@ -72,7 +72,6 @@ jobs:
         if: hashFiles('composer.json') != ''
         run: | #shell
           sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"dev-${BRANCH_REF}\"|g" composer.json
-          grep -qF "\"johnbillion/plugin-infrastructure\": \"dev-${BRANCH_REF}\"" composer.json
 
       - name: Setup node
         if: hashFiles('.nvmrc') != ''
