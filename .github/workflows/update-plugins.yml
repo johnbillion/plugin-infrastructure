@@ -82,7 +82,6 @@ jobs:
         if: hashFiles('composer.json') != ''
         run: | #shell
           sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"${TAG_NAME}\"|g" composer.json
-          grep -qF "\"johnbillion/plugin-infrastructure\": \"${TAG_NAME}\"" composer.json
 
       - name: Setup node
         if: hashFiles('.nvmrc') != ''
