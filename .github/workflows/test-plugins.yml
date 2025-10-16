@@ -94,7 +94,7 @@ jobs:
     timeout-minutes: 5
     env:
       SHA_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_sha }}
-      BRANCH_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}-built
+      BRANCH_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
       PR_LINK: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).pr_link }}
     steps:
       - name: Checkout repository
@@ -111,7 +111,7 @@ jobs:
       - name: Update Composer dependencies
         if: hashFiles('composer.json') != ''
         run: | #shell
-          sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"dev-${BRANCH_REF}\"|g" composer.json
+          sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"dev-${BRANCH_REF}-built\"|g" composer.json
 
       - name: Setup node
         if: hashFiles('.nvmrc') != ''
@@ -122,7 +122,7 @@ jobs:
       - name: Update Node dependencies
         if: hashFiles('package.json') != ''
         run: | #shell
-          npm install "@johnbillion/plugin-infrastructure@github:johnbillion/plugin-infrastructure#${BRANCH_REF}" --save-exact --save-dev --package-lock-only
+          npm install "@johnbillion/plugin-infrastructure@github:johnbillion/plugin-infrastructure#${BRANCH_REF}-built" --save-exact --save-dev --package-lock-only
 
       - name: Check the changed files
         run: | #shell
