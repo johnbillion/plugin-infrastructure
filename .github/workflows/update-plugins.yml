@@ -74,11 +74,6 @@ jobs:
           token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
           persist-credentials: false
 
-      - name: Setup node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          node-version-file: '.nvmrc'
-
       - name: Update acceptance-tests.yml
         if: hashFiles('.github/workflows/acceptance-tests.yml') != ''
         run: | #shell
@@ -133,16 +128,22 @@ jobs:
           sed -i "s|\.github/workflows/reusable-verify-distribution\.yml@.*$|.github/workflows/reusable-verify-distribution.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/verify-distribution.yml
           grep -qF ".github/workflows/reusable-verify-distribution.yml@${TAG_SHA}" .github/workflows/verify-distribution.yml
 
-      - name: Update composer.json
+      - name: Update Composer dependencies
+        if: hashFiles('composer.json') != ''
         run: | #shell
           sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"${TAG_NAME}\"|g" composer.json
           grep -qF "\"johnbillion/plugin-infrastructure\": \"${TAG_NAME}\"" composer.json
 
-      - name: Update package.json and package-lock.json
+      - name: Setup node
+        if: hashFiles('.nvmrc') != ''
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Update Node dependencies
+        if: hashFiles('package.json') != ''
         run: | #shell
-          sed -i "s|\"@johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"@johnbillion/plugin-infrastructure\": \"${TAG_NAME}\"|g" package.json
-          grep -qF "\"@johnbillion/plugin-infrastructure\": \"${TAG_NAME}\"" package.json
-          npm install --package-lock-only
+          npm install @johnbillion/plugin-infrastructure@"${TAG_NAME}" --save-exact --package-lock-only
 
       - name: Check the changed files
         run: | #shell
