@@ -145,48 +145,6 @@ jobs:
           branch: test-plugin-infrastructure/${{ env.BRANCH_REF }}
           draft: true
 
-      - name: Add PR link to the summary
-        run: | #shell
-          echo "${URL}" >> "$GITHUB_STEP_SUMMARY"
-        env:
-          URL: ${{ steps.cpr.outputs.pull-request-url }}
-
-      - name: Write plugin PR data to JSON file
-        run: | #shell
-          echo "${PR_DATA}" > plugin-pr-data.json
-        env:
-          PR_DATA: ${{ toJson(steps.cpr.outputs) }}
-
-      - name: Save plugin PR data as an artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: plugin-pr-data-${{ matrix.plugin }}
-          path: plugin-pr-data.json
-          if-no-files-found: error
-
-  label:
-    name: Label PR / ${{ matrix.plugin }}
-    permissions:
-      pull-requests: write
-    runs-on: ubuntu-24.04
-    needs:
-      - get-plugins
-      - open-pr
-    timeout-minutes: 5
-    strategy:
-      matrix: ${{ fromJSON( needs.get-plugins.outputs.matrix ) }}
-      fail-fast: false
-    steps:
-      - name: Download plugin PR data artifact
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
-        with:
-          name: plugin-pr-data-${{ matrix.plugin }}
-
-      - name: Read the plugin PR data
-        id: plugin-pr-data
-        run: | #shell
-          echo "pr_data=$(jq -c . plugin-pr-data.json)" >> "$GITHUB_OUTPUT"
-
       - name: Set labels
         run: | #shell
           gh --repo johnbillion/plugin-infrastructure label create "pr:${PLUGIN}:${PLUGIN_PR_NUMBER}" --force --color F4F4F4
