@@ -75,7 +75,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "${BRANCH_NAME}-built"
-          git add dist/
+          git add -f dist/
           git commit -m "Built assets for testing"
           git push origin "${BRANCH_NAME}-built" --force
         env:
