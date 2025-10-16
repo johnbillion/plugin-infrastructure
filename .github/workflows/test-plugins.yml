@@ -83,7 +83,7 @@ jobs:
       - name: Update Node dependencies
         if: hashFiles('package.json') != ''
         run: | #shell
-          npm install @johnbillion/plugin-infrastructure@"${BRANCH_REF}" --save-exact --save-dev --package-lock-only
+          npm install "@johnbillion/plugin-infrastructure@github:johnbillion/plugin-infrastructure#${BRANCH_REF}" --save-exact --save-dev --package-lock-only
 
       - name: Check the changed files
         run: | #shell
