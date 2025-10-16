@@ -80,7 +80,8 @@ jobs:
 
   open-pr:
     name: Open PR / ${{ matrix.plugin }}
-    permissions: {}
+    permissions:
+      pull-requests: write
     needs:
       - get-plugins
       - build-branch
