@@ -74,7 +74,7 @@ jobs:
 
       - name: Update workflow files
         run: | #shell
-          find .github/workflows -name '*.yml' -type f -exec sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/\([^@]*\)@.*$|johnbillion/plugin-infrastructure/.github/workflows/\1@${TAG_SHA} # ${TAG_NAME}|g" {} +
+          find .github/workflows -name '*.yml' -type f -exec sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/\([^@]*\)@.*$|johnbillion/plugin-infrastructure/.github/workflows/\1@${TAG_SHA} # ${TAG_NAME}|g" {} \;
 
       - name: Update Composer dependencies
         if: hashFiles('composer.json') != ''
@@ -90,7 +90,7 @@ jobs:
       - name: Update Node dependencies
         if: hashFiles('package.json') != ''
         run: | #shell
-          npm install @johnbillion/plugin-infrastructure@"${TAG_NAME}" --save-exact --save-dev --package-lock-only
+          npm install "@johnbillion/plugin-infrastructure@${TAG_NAME}" --save-exact --save-dev --package-lock-only
 
       - name: Check the changed files
         run: | #shell
