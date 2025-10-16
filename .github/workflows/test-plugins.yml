@@ -137,7 +137,7 @@ jobs:
           commit-message: Update Plugin Infrastructure to ${{ env.SHA_REF }}
           title: Test with plugin-infrastructure@${{ env.BRANCH_REF }}
           body: | #markdown
-            This PR updates [Plugin Infrastructure](https://github.com/johnbillion/plugin-infrastructure) to `${{ env.BRANCH_REF }}` for testing purposes. This PR should not be merged.
+            This PR switches plugin-infrastructure to https://github.com/johnbillion/plugin-infrastructure/tree/${{ env.BRANCH_REF }}-built for testing purposes. This PR should not be merged.
 
             See ${{ env.PR_LINK }} for more details.
 
