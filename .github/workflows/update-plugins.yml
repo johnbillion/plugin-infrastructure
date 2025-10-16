@@ -74,59 +74,9 @@ jobs:
           token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
           persist-credentials: false
 
-      - name: Update acceptance-tests.yml
-        if: hashFiles('.github/workflows/acceptance-tests.yml') != ''
+      - name: Update workflow files
         run: | #shell
-          sed -i "s|\.github/workflows/reusable-acceptance-tests\.yml@.*$|.github/workflows/reusable-acceptance-tests.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/acceptance-tests.yml
-          grep -qF ".github/workflows/reusable-acceptance-tests.yml@${TAG_SHA}" .github/workflows/acceptance-tests.yml
-
-      - name: Update build.yml
-        if: hashFiles('.github/workflows/build.yml') != ''
-        run: | #shell
-          sed -i "s|\.github/workflows/reusable-build\.yml@.*$|.github/workflows/reusable-build.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/build.yml
-          grep -qF ".github/workflows/reusable-build.yml@${TAG_SHA}" .github/workflows/build.yml
-
-      - name: Update coding-standards.yml
-        if: hashFiles('.github/workflows/coding-standards.yml') != ''
-        run: | #shell
-          sed -i "s|\.github/workflows/reusable-coding-standards\.yml@.*$|.github/workflows/reusable-coding-standards.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/coding-standards.yml
-          grep -qF ".github/workflows/reusable-coding-standards.yml@${TAG_SHA}" .github/workflows/coding-standards.yml
-
-      - name: Update deploy-assets.yml
-        if: hashFiles('.github/workflows/deploy-assets.yml') != ''
-        run: | #shell
-          sed -i "s|\.github/workflows/reusable-deploy-assets\.yml@.*$|.github/workflows/reusable-deploy-assets.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/deploy-assets.yml
-          grep -qF ".github/workflows/reusable-deploy-assets.yml@${TAG_SHA}" .github/workflows/deploy-assets.yml
-
-      - name: Update deploy-tag.yml
-        if: hashFiles('.github/workflows/deploy-tag.yml') != ''
-        run: | #shell
-          sed -i "s|\.github/workflows/reusable-deploy-tag\.yml@.*$|.github/workflows/reusable-deploy-tag.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/deploy-tag.yml
-          grep -qF ".github/workflows/reusable-deploy-tag.yml@${TAG_SHA}" .github/workflows/deploy-tag.yml
-
-      - name: Update integration-tests.yml
-        if: hashFiles('.github/workflows/integration-tests.yml') != ''
-        run: | #shell
-          sed -i "s|\.github/workflows/reusable-integration-tests\.yml@.*$|.github/workflows/reusable-integration-tests.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/integration-tests.yml
-          grep -qF ".github/workflows/reusable-integration-tests.yml@${TAG_SHA}" .github/workflows/integration-tests.yml
-
-      - name: Update static-analysis.yml
-        if: hashFiles('.github/workflows/static-analysis.yml') != ''
-        run: | #shell
-          sed -i "s|\.github/workflows/reusable-static-analysis\.yml@.*$|.github/workflows/reusable-static-analysis.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/static-analysis.yml
-          grep -qF ".github/workflows/reusable-static-analysis.yml@${TAG_SHA}" .github/workflows/static-analysis.yml
-
-      - name: Update lint-workflows.yml
-        if: hashFiles('.github/workflows/lint-workflows.yml') != ''
-        run: | #shell
-          sed -i "s|\.github/workflows/reusable-workflow-lint\.yml@.*$|.github/workflows/reusable-workflow-lint.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/lint-workflows.yml
-          grep -qF ".github/workflows/reusable-workflow-lint.yml@${TAG_SHA}" .github/workflows/lint-workflows.yml
-
-      - name: Update verify-distribution.yml
-        if: hashFiles('.github/workflows/verify-distribution.yml') != ''
-        run: | #shell
-          sed -i "s|\.github/workflows/reusable-verify-distribution\.yml@.*$|.github/workflows/reusable-verify-distribution.yml@${TAG_SHA} # ${TAG_NAME}|g" .github/workflows/verify-distribution.yml
-          grep -qF ".github/workflows/reusable-verify-distribution.yml@${TAG_SHA}" .github/workflows/verify-distribution.yml
+          find .github/workflows -name '*.yml' -type f -exec sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/\([^@]*\)@.*$|johnbillion/plugin-infrastructure/.github/workflows/\1@${TAG_SHA} # ${TAG_NAME}|g" {} +
 
       - name: Update Composer dependencies
         if: hashFiles('composer.json') != ''
