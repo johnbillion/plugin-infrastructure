@@ -14,12 +14,11 @@ on:
 permissions: {}
 
 jobs:
-  get-plugins:
-    name: Get plugins
+  tag-data:
+    name: Fetch tag data
     permissions: {}
     runs-on: ubuntu-24.04
     outputs:
-      matrix: ${{ steps.plugins.outputs.matrix }}
       source-tag-data: ${{ steps.source-tag-data.outputs.result }}
     steps:
       - name: Fetch the source tag data
@@ -47,25 +46,24 @@ jobs:
         env:
           TAG_NAME: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.TAG_NAME }}
 
-      - name: Get the list of plugins to update
-        id: plugins
-        run: | #shell
-          echo matrix='{"plugin":["query-monitor","user-switching","wp-crontrol"]}' >> "$GITHUB_OUTPUT"
-
-  open-pr:
-    name: Open PR / ${{ matrix.plugin }}
+  update-plugin:
+    name: Update ${{ matrix.plugin }}
     permissions: {}
     needs:
-      - get-plugins
+      - tag-data
     strategy:
-      matrix: ${{ fromJSON( needs.get-plugins.outputs.matrix ) }}
+      matrix:
+        plugin:
+          # - query-monitor
+          - user-switching
+          - wp-crontrol
       fail-fast: false
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
-      TAG_NAME: ${{ fromJson( needs.get-plugins.outputs.source-tag-data ).tag_name }}
-      TAG_SHA: ${{ fromJson( needs.get-plugins.outputs.source-tag-data ).tag_sha }}
-      TAG_URL: ${{ fromJson( needs.get-plugins.outputs.source-tag-data ).tag_url }}
+      TAG_NAME: ${{ fromJson( needs.tag-data.outputs.source-tag-data ).tag_name }}
+      TAG_SHA: ${{ fromJson( needs.tag-data.outputs.source-tag-data ).tag_sha }}
+      TAG_URL: ${{ fromJson( needs.tag-data.outputs.source-tag-data ).tag_url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
