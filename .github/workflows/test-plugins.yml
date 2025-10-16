@@ -38,7 +38,6 @@ jobs:
               pull_number: process.env.SOURCE_PR_NUMBER,
             });
             return {
-              head_repo: pr.data.head.repo.full_name,
               head_branch: pr.data.head.ref,
               head_sha: pr.data.head.sha,
               pr_number: pr.data.number,
@@ -58,6 +57,10 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    env:
+      SHA_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_sha }}
+      BRANCH_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
+      PR_LINK: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).pr_link }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -66,52 +69,26 @@ jobs:
           token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
           persist-credentials: false
 
-      - name: Update tests references
+      - name: Update workflow files
         run: | #shell
-          if [ -f .github/workflows/acceptance-tests.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-acceptance-tests\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-acceptance-tests.yml@${SHA_REF}|g" .github/workflows/acceptance-tests.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-acceptance-tests.yml@${SHA_REF}" .github/workflows/acceptance-tests.yml || { echo "Error: Replacement failed in acceptance-tests.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/build.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-build\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-build.yml@${SHA_REF}|g" .github/workflows/build.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-build.yml@${SHA_REF}" .github/workflows/build.yml || { echo "Error: Replacement failed in build.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/coding-standards.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-coding-standards\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-coding-standards.yml@${SHA_REF}|g" .github/workflows/coding-standards.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-coding-standards.yml@${SHA_REF}" .github/workflows/coding-standards.yml || { echo "Error: Replacement failed in coding-standards.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/deploy-assets.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-deploy-assets\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-deploy-assets.yml@${SHA_REF}|g" .github/workflows/deploy-assets.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-deploy-assets.yml@${SHA_REF}" .github/workflows/deploy-assets.yml || { echo "Error: Replacement failed in deploy-assets.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/deploy-tag.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-deploy-tag\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-deploy-tag.yml@${SHA_REF}|g" .github/workflows/deploy-tag.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-deploy-tag.yml@${SHA_REF}" .github/workflows/deploy-tag.yml || { echo "Error: Replacement failed in deploy-tag.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/integration-tests.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-integration-tests\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-integration-tests.yml@${SHA_REF}|g" .github/workflows/integration-tests.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-integration-tests.yml@${SHA_REF}" .github/workflows/integration-tests.yml || { echo "Error: Replacement failed in integration-tests.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/static-analysis.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-static-analysis\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-static-analysis.yml@${SHA_REF}|g" .github/workflows/static-analysis.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-static-analysis.yml@${SHA_REF}" .github/workflows/static-analysis.yml || { echo "Error: Replacement failed in static-analysis.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/lint-workflows.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-workflow-lint\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-workflow-lint.yml@${SHA_REF}|g" .github/workflows/lint-workflows.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-workflow-lint.yml@${SHA_REF}" .github/workflows/lint-workflows.yml || { echo "Error: Replacement failed in lint-workflows.yml"; exit 1; }
-          fi
-          if [ -f .github/workflows/verify-distribution.yml ]; then
-            sed -i "s|johnbillion/plugin-infrastructure/\.github/workflows/reusable-verify-distribution\.yml@.*$|${HEAD_REPO}/.github/workflows/reusable-verify-distribution.yml@${SHA_REF}|g" .github/workflows/verify-distribution.yml
-            grep -qF "${HEAD_REPO}/.github/workflows/reusable-verify-distribution.yml@${SHA_REF}" .github/workflows/verify-distribution.yml || { echo "Error: Replacement failed in verify-distribution.yml"; exit 1; }
-          fi
-          if [ "${HEAD_REPO}" == "johnbillion/plugin-infrastructure" ]; then
-            sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"dev-${HEAD_BRANCH}\"|g" composer.json
-            grep -qF "\"johnbillion/plugin-infrastructure\": \"dev-${HEAD_BRANCH}\"" composer.json || { echo "Error: Replacement failed in composer.json"; exit 1; }
-          fi
-        env:
-          HEAD_BRANCH: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
-          HEAD_REPO: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_repo }}
-          SHA_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_sha }}
+          find .github/workflows -name '*.yml' -type f -exec sed -i '' "s|johnbillion/plugin-infrastructure/\.github/workflows/\([^@]*\)@.*$|johnbillion/plugin-infrastructure/.github/workflows/\1@${SHA_REF}|g" {} +
+
+      - name: Update Composer dependencies
+        if: hashFiles('composer.json') != ''
+        run: | #shell
+          sed -i "s|\"johnbillion/plugin-infrastructure\": \"[^\"]*\"|\"johnbillion/plugin-infrastructure\": \"dev-${BRANCH_REF}\"|g" composer.json
+          grep -qF "\"johnbillion/plugin-infrastructure\": \"dev-${BRANCH_REF}\"" composer.json
+
+      - name: Setup node
+        if: hashFiles('.nvmrc') != ''
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Update Node dependencies
+        if: hashFiles('package.json') != ''
+        run: | #shell
+          npm install @johnbillion/plugin-infrastructure@"${BRANCH_REF}" --save-exact --save-dev --package-lock-only
 
       - name: Check the changed files
         run: | #shell
@@ -124,20 +101,15 @@ jobs:
         with:
           token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
           commit-message: Update Plugin Infrastructure to ${{ env.SHA_REF }}
-          title: Test with ${{ env.HEAD_REPO }}@${{ env.BRANCH_REF }}
+          title: Test with plugin-infrastructure@${{ env.BRANCH_REF }}
           body: | #markdown
-            This PR updates [Plugin Infrastructure](https://github.com/johnbillion/plugin-infrastructure) to `${{ env.HEAD_REPO }}@${{ env.BRANCH_REF }}` for testing purposes. This PR should not be merged.
+            This PR updates [Plugin Infrastructure](https://github.com/johnbillion/plugin-infrastructure) to `${{ env.BRANCH_REF }}` for testing purposes. This PR should not be merged.
 
             See ${{ env.PR_LINK }} for more details.
 
             This is an automated PR created by [the Test Plugins workflow](https://github.com/johnbillion/plugin-infrastructure/actions/workflows/test-plugins.yml).
-          branch: update-plugin-infrastructure/${{ env.HEAD_REPO }}/${{ env.BRANCH_REF }}
+          branch: test-plugin-infrastructure/${{ env.BRANCH_REF }}
           draft: true
-        env:
-          HEAD_REPO: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_repo }}
-          SHA_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_sha }}
-          BRANCH_REF: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).head_branch }}
-          PR_LINK: ${{ fromJson( needs.get-plugins.outputs.source-pr-data ).pr_link }}
 
       - name: Add PR link to the summary
         run: | #shell
