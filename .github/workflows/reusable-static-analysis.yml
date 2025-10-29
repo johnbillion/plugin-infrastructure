@@ -33,7 +33,6 @@ jobs:
         ini-file: development
       env:
         fail-fast: true
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Get Composer cache directory
       id: composer-cache
