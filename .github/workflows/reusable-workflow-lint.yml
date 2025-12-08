@@ -30,9 +30,9 @@ jobs:
     name: Octoscan
     runs-on: ubuntu-24.04
     permissions:
-      security-events: write # Required for upload-sarif to upload SARIF files.
+      security-events: write # Required for codeql-action/upload-sarif to upload SARIF files.
       contents: read         # Only needed for private repos. Needed to clone the repo.
-      actions: read          # Only needed for private repos. Needed for upload-sarif to read workflow run info.
+      actions: read          # Only needed for private repos. Needed for codeql-action/upload-sarif to read workflow run info.
     timeout-minutes: 10
     steps:
       - name: Checkout code
@@ -57,9 +57,9 @@ jobs:
     name: Zizmor
     runs-on: ubuntu-24.04
     permissions:
-      security-events: write # Required for upload-sarif to upload SARIF files.
+      security-events: write # Required for codeql-action/upload-sarif to upload SARIF files.
       contents: read         # Only needed for private repos. Needed to clone the repo.
-      actions: read          # Only needed for private repos. Needed for upload-sarif to read workflow run info.
+      actions: read          # Only needed for private repos. Needed for codeql-action/upload-sarif to read workflow run info.
     steps:
       - name: Checkout repository
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
@@ -87,9 +87,9 @@ jobs:
     name: Poutine
     runs-on: ubuntu-24.04
     permissions:
-      security-events: write # Required for upload-sarif to upload SARIF files.
+      security-events: write # Required for codeql-action/upload-sarif to upload SARIF files.
       contents: read         # Only needed for private repos. Needed to clone the repo.
-      actions: read          # Only needed for private repos. Needed for upload-sarif to read workflow run info.
+      actions: read          # Only needed for private repos. Needed for codeql-action/upload-sarif to read workflow run info.
     steps:
       - name: Checkout repository
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
@@ -110,8 +110,9 @@ jobs:
     name: CodeQL
     runs-on: ubuntu-24.04
     permissions:
-      security-events: write
-      contents: read
+      security-events: write # Required for codeql-action/analyze to report to code scanning.
+      contents: read         # Only needed for private repos. Needed to clone the repo.
+      actions: read          # Only needed for private repos. Needed for codeql-action/analyze to read workflow run info.
     steps:
       - name: Checkout repository
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
