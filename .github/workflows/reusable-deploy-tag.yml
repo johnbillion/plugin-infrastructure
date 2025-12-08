@@ -42,9 +42,9 @@ jobs:
     name: WordPress.org
     runs-on: ubuntu-24.04
     permissions:
-      attestations: write
-      contents: read
-      id-token: write
+      attestations: write # Required to store the build provenance attestation
+      contents: read      # Required to clone the repo.
+      id-token: write     # Required for creating an OIDC token for build provenance attestation
     timeout-minutes: 70
     outputs:
       zip-path: ${{ steps.deploy.outputs.zip-path }}
@@ -118,7 +118,7 @@ jobs:
     if: ${{ inputs.deploy }}
     runs-on: ubuntu-24.04
     permissions:
-      issues: write
+      issues: write # Required for write access to milestones
     timeout-minutes: 10
     steps:
     - name: Get next versions
