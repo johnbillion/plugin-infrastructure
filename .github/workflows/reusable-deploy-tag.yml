@@ -116,48 +116,8 @@ jobs:
   github:
     name: GitHub Milestones
     if: ${{ inputs.deploy }}
-    runs-on: ubuntu-24.04
     permissions:
       issues: write # Required for write access to milestones
-    timeout-minutes: 10
-    steps:
-    - name: Get next versions
-      id: semvers
-      env:
-        VERSION: ${{ inputs.version }}
-      run: | #shell
-        IFS='.' read -r -a parts <<< "$VERSION"
-        {
-          echo "major=$((parts[0] + 1)).0.0"
-          echo "minor=${parts[0]}.$((parts[1] + 1)).0"
-          echo "patch=${parts[0]}.${parts[1]}.$((parts[2] + 1))"
-        } >> "$GITHUB_OUTPUT"
-
-    - name: Create next patch milestone
-      run: gh api "/repos/${GITHUB_REPOSITORY}/milestones" --field "title=${TITLE}" || true
-      env:
-        GH_TOKEN: ${{ github.token }}
-        TITLE: ${{ steps.semvers.outputs.patch }}
-
-    - name: Create next minor milestone
-      run: gh api "/repos/${GITHUB_REPOSITORY}/milestones" --field "title=${TITLE}" || true
-      env:
-        GH_TOKEN: ${{ github.token }}
-        TITLE: ${{ steps.semvers.outputs.minor }}
-
-    - name: Create next major milestone
-      run: gh api "/repos/${GITHUB_REPOSITORY}/milestones" --field "title=${TITLE}" || true
-      env:
-        GH_TOKEN: ${{ github.token }}
-        TITLE: ${{ steps.semvers.outputs.major }}
-
-    - name: Close completed milestone
-      run: | #shell
-        JQ_FILTER='.[] | select(.title == "'"${WP_VERSION}"'") | .number'
-        ID="$(gh api "/repos/${GITHUB_REPOSITORY}/milestones" --jq "$JQ_FILTER")"
-        if [ -n "$ID" ]; then
-          gh api "/repos/${GITHUB_REPOSITORY}/milestones/${ID}" --method "PATCH" --field "state=closed"
-        fi
-      env:
-        GH_TOKEN: ${{ github.token }}
-        WP_VERSION: ${{ inputs.version }}
+    uses: ./.github/workflows/reusable-milestones.yml
+    with:
+      version: ${{ inputs.version }}
