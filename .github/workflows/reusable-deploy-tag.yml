@@ -130,13 +130,14 @@ jobs:
         PLUGIN_DID: ${{ inputs.did }}
         VERSION: ${{ inputs.version }}
         FAIR_PATH: ${{ inputs.fair-path }}
+        ZIP_PATH: ${{ steps.deploy.outputs.zip-path }}
         FAIR_VERIFICATION_KEY: ${{ secrets.FAIR_VERIFICATION_KEY }}
       run: | #shell
         npm install -g fair-tools
 
         fair-tools metadata build \
           --plugin-file "${PLUGIN_SLUG}.php" \
-          --zip-file "${PLUGIN_SLUG}.zip" \
+          --zip-file "${ZIP_PATH}" \
           --url "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.${VERSION}.zip" \
           --did "${PLUGIN_DID}" \
           --metadata-file "${FAIR_PATH}" \
