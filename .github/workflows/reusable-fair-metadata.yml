@@ -65,6 +65,7 @@ jobs:
       env:
         PLUGIN_SLUG: ${{ inputs.plugin }}
         PLUGIN_DID: ${{ inputs.did }}
+        VERSION: ${{ inputs.version }}
         FAIR_PATH: ${{ inputs.fair-path }}
         FAIR_VERIFICATION_KEY: ${{ secrets.FAIR_VERIFICATION_KEY }}
       run: | #shell
