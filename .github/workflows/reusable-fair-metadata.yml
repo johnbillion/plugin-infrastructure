@@ -50,8 +50,9 @@ jobs:
     - name: Download plugin zip
       env:
         PLUGIN_SLUG: ${{ inputs.plugin }}
+        VERSION: ${{ inputs.version }}
       run: | #shell
-        curl -fsSL -o "${PLUGIN_SLUG}.zip" "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.zip"
+        curl -fsSL -o "${PLUGIN_SLUG}.zip" "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.${VERSION}.zip"
 
     - name: Extract plugin zip
       if: ${{ inputs.use-develop }}
@@ -72,7 +73,7 @@ jobs:
         fair-tools metadata build \
           --plugin-file "${PLUGIN_SLUG}.php" \
           --zip-file "${PLUGIN_SLUG}.zip" \
-          --url "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.zip" \
+          --url "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.${VERSION}.zip" \
           --did "${PLUGIN_DID}" \
           --metadata-file "${FAIR_PATH}" \
           --output-file "${FAIR_PATH}" \
