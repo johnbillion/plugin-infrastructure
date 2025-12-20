@@ -22,7 +22,8 @@ Provided without support, warranty, guarantee, backwards compatibility, fitness 
 * Workflow file linting
 * Deployment to WordPress.org
 * GitHub milestone management
-* Build provenance attestation
+* FAIR metadata generation
+* GitHub build provenance attestation
 * SLSA v1.0 Build level 3 facilitation
 * Ongoing supply chain assurance
 
@@ -95,10 +96,11 @@ Plugins that use this library all use a similar setup in their workflows:
 		* Uses `johnbillion/action-wordpress-plugin-attestation`
 			* Fetches the zip from WordPress.org
 			* Generates a build provenance attestation if the zip contents matches the build
+		* Generates FAIR metadata for the release and opens a PR with the changes
 
 ### Packagist
 
-* Happens automatically with each release via the auto-update mechanism on Packagist.org.
+* Happens automatically with each release via the auto-update mechanism on Packagist.org
 * Always identical to the version deployed to WordPress.org
 
 ### GitHub
