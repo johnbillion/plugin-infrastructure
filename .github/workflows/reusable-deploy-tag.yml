@@ -8,6 +8,14 @@ on:
         required: true
         type: string
         description: The plugin slug
+      did:
+        required: true
+        type: string
+        description: The plugin DID
+      fair-path:
+        required: true
+        type: string
+        description: Relative path to FAIR metadata file
       readme:
         required: true
         type: string
@@ -27,6 +35,8 @@ on:
     secrets:
       WPORG_SVN_PASSWORD:
         required: true
+      FAIR_VERIFICATION_KEY:
+        required: true
     outputs:
       zip-path:
         description: The path to the generated zip file
@@ -42,9 +52,10 @@ jobs:
     name: WordPress.org
     runs-on: ubuntu-24.04
     permissions:
-      attestations: write # Required to store the build provenance attestation
-      contents: read      # Required to clone the repo.
-      id-token: write     # Required for creating an OIDC token for build provenance attestation
+      id-token: write       # Required for creating an OIDC token for build provenance attestation
+      attestations: write   # Required to store the build provenance attestation
+      contents: write       # Required to push the new branch
+      pull-requests: write  # Required to create the pull request
     timeout-minutes: 70
     outputs:
       zip-path: ${{ steps.deploy.outputs.zip-path }}
@@ -112,6 +123,58 @@ jobs:
         plugin: ${{ inputs.plugin }}
         version: ${{ inputs.version }}
         zip-path: ${{ steps.deploy.outputs.zip-path }}
+
+    - name: Generate FAIR metadata
+      env:
+        PLUGIN_SLUG: ${{ inputs.plugin }}
+        PLUGIN_DID: ${{ inputs.did }}
+        VERSION: ${{ inputs.version }}
+        FAIR_PATH: ${{ inputs.fair-path }}
+        FAIR_VERIFICATION_KEY: ${{ secrets.FAIR_VERIFICATION_KEY }}
+      run: | #shell
+        npm install -g fair-tools
+
+        fair-tools metadata build \
+          --plugin-file "${PLUGIN_SLUG}.php" \
+          --zip-file "${PLUGIN_SLUG}.zip" \
+          --url "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.${VERSION}.zip" \
+          --did "${PLUGIN_DID}" \
+          --metadata-file "${FAIR_PATH}" \
+          --output-file "${FAIR_PATH}" \
+          --assets-dir ".wordpress-org" \
+          --assets-url "https://ps.w.org/${PLUGIN_SLUG}/assets/"
+
+    - name: Checkout base branch for PR
+      uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      with:
+        ref: ${{ github.event.repository.default_branch }}
+        path: pr-branch
+        persist-credentials: true # Required for pushing the new branch
+
+    - name: Create PR with updated FAIR metadata
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        FAIR_PATH: ${{ inputs.fair-path }}
+        VERSION: ${{ inputs.version }}
+      run: | #shell
+        BRANCH_NAME="fair-metadata-${VERSION}"
+
+        # Copy the updated FAIR metadata to the PR branch checkout
+        cp "${FAIR_PATH}" "pr-branch/${FAIR_PATH}"
+
+        cd pr-branch
+
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout -b "${BRANCH_NAME}"
+        git add "${FAIR_PATH}"
+        git commit -m "Update FAIR metadata for ${VERSION}"
+        git push origin "${BRANCH_NAME}"
+
+        gh pr create \
+          --title "Update FAIR metadata for ${VERSION}" \
+          --body "Updates the FAIR metadata file following the ${VERSION} release." \
+          --head "${BRANCH_NAME}"
 
   github:
     name: GitHub Milestones
