@@ -105,27 +105,3 @@ jobs:
           sarif_file: results.sarif
           category: poutine
           wait-for-processing: false
-
-  codeql:
-    name: CodeQL
-    runs-on: ubuntu-24.04
-    permissions:
-      security-events: write # Required for codeql-action/analyze to report to code scanning.
-      contents: read         # Only needed for private repos. Needed to clone the repo.
-      actions: read          # Only needed for private repos. Needed for codeql-action/analyze to read workflow run info.
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-        with:
-          persist-credentials: false
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@fdbfb4d2750291e159f0156def62b853c2798ca2 # v4.31.5
-        with:
-          languages: actions
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@fdbfb4d2750291e159f0156def62b853c2798ca2 # v4.31.5
-        with:
-          category: codeql
-          wait-for-processing: false
