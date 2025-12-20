@@ -58,6 +58,6 @@ runs:
             '### Earlier versions ###',
             `For the changelog of earlier versions, <a href="https://github.com/${context.repo.owner}/${context.repo.repo}/releases">refer to the releases page on GitHub</a>.`,
           );
-          changelog.unshift('## Changelog ##');
+          changelog.unshift('\n## Changelog ##');
 
           return changelog.join( '\n\n' );
