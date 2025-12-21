@@ -192,5 +192,5 @@ jobs:
         with:
           commit-message: "Update DID PLC log"
           title: "Update DID PLC log"
-          body: "This PR updates the DID PLC log file with the latest data from plc.directory."
+          body: "This PR updates the DID PLC log file with the latest data from https://plc.directory/${{ inputs.did }}/log"
           branch: update-did-plc-log
