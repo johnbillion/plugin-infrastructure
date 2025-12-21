@@ -159,3 +159,30 @@ jobs:
           name: plugin-info.json
           path: plugin-info.json
           if-no-files-found: error
+
+  did-plc-log:
+    name: Update DID PLC Log
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: true # Required for pushing the new branch
+
+      - name: Download and save DID PLC log
+        env:
+          DID: ${{ inputs.did }}
+          DID_LOG_PATH: ${{ inputs.did-log-path }}
+        run: | #shell
+          curl --silent --show-error --fail "https://plc.directory/${DID}/log" | jq --tab '.' > "${DID_LOG_PATH}"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@84ae59a2cdc2258d6fa0732dd66352dddae2a412 # v6
+        with:
+          commit-message: "Update DID PLC log"
+          title: "Update DID PLC log"
+          body: "This PR updates the DID PLC log file with the latest data from plc.directory."
+          branch: update-did-plc-log
