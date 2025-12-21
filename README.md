@@ -113,6 +113,8 @@ Plugins that use this library all use a similar setup in their workflows:
 * Hourly scheduled workflow runs in `verify-distribution.yml`
 	* Uses `reusable-verify-distribution.yml`
 		* Verifies the provenance of the plugin on WordPress.org
+		* Verifies the `api.wordpress.org` response for the plugin info
+		* Fetches and updates the DID PLC log
 
 ## Licence
 
