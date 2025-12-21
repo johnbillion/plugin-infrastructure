@@ -12,6 +12,14 @@ on:
         description: GitHub owner or organisation
         required: true
         type: string
+      did:
+        required: true
+        type: string
+        description: The plugin DID
+      did-log-path:
+        required: true
+        type: string
+        description: Relative path to DID PLC log file
 
 permissions: {}
 
