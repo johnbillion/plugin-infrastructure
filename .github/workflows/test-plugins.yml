@@ -16,12 +16,12 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout source branch
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: true
 
       - name: Setup node
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version-file: '.nvmrc'
 
@@ -58,7 +58,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout repository
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           repository: johnbillion/${{ matrix.plugin }}
           token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
@@ -75,7 +75,7 @@ jobs:
 
       - name: Setup node
         if: hashFiles('.nvmrc') != ''
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version-file: '.nvmrc'
 
@@ -90,7 +90,7 @@ jobs:
           git status
 
       - name: Open PR
-        uses: peter-evans/create-pull-request@84ae59a2cdc2258d6fa0732dd66352dddae2a412 # v6
+        uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # v6
         id: cpr
         with:
           token: ${{ secrets.PLUGINS_PUSH_TOKEN }}
