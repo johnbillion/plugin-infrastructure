@@ -30,6 +30,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           registry-url: https://registry.npmjs.org/
+          package-manager-cache: false
 
       - name: Upgrade npm for OIDC support
         run: npm install -g npm@latest
