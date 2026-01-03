@@ -1,3 +1,7 @@
+networks:
+  plugin-test-network:
+    name: ${COMPOSE_PROJECT_NAME}-network
+
 services:
 
   server:
@@ -8,11 +12,13 @@ services:
       - 80
     depends_on:
       - php
+    networks:
+      - plugin-test-network
     volumes:
-      - ./vendor/wordpress/wordpress:/var/www/html/:rw
-      - ./vendor/johnbillion/plugin-infrastructure/config/wp-config.php:/var/www/html/wp-config.php
-      - ./vendor/johnbillion/plugin-infrastructure/config/nginx.conf:/etc/nginx/templates/default.conf.template
-      - ./:/var/www/html/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
+      - ${HOST_PROJECT_PATH:-.}/vendor/wordpress/wordpress:/var/www/html/:rw
+      - ${HOST_PROJECT_PATH:-.}/vendor/johnbillion/plugin-infrastructure/config/wp-config.php:/var/www/html/wp-config.php
+      - ${HOST_PROJECT_PATH:-.}/vendor/johnbillion/plugin-infrastructure/config/nginx.conf:/etc/nginx/templates/default.conf.template
+      - ${HOST_PROJECT_PATH:-.}/:/var/www/html/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
 
   php:
     image: wordpressdevelop/${LOCAL_PHP-php@sha256:c0ba85936a9d1ac2c98bf3da2d62ceb0e5787a6b11e383630df0c5a5bf2534b5}
@@ -29,11 +35,13 @@ services:
     depends_on:
       - database
     init: true
+    networks:
+      - plugin-test-network
     volumes:
-      - ./vendor/wordpress/wordpress:/var/www/html/:rw
-      - ./vendor/johnbillion/plugin-infrastructure/config/wp-config.php:/var/www/html/wp-config.php
-      - ./vendor/johnbillion/plugin-infrastructure/config/php-config.ini:/usr/local/etc/php/conf.d/php-config.ini
-      - ./:/var/www/html/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
+      - ${HOST_PROJECT_PATH:-.}/vendor/wordpress/wordpress:/var/www/html/:rw
+      - ${HOST_PROJECT_PATH:-.}/vendor/johnbillion/plugin-infrastructure/config/wp-config.php:/var/www/html/wp-config.php
+      - ${HOST_PROJECT_PATH:-.}/vendor/johnbillion/plugin-infrastructure/config/php-config.ini:/usr/local/etc/php/conf.d/php-config.ini
+      - ${HOST_PROJECT_PATH:-.}/:/var/www/html/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
 
   database:
     image: mariadb:10.5.8
@@ -41,6 +49,8 @@ services:
     restart: always
     ports:
       - 3306
+    networks:
+      - plugin-test-network
     environment:
       MYSQL_DATABASE: plugindb
       MYSQL_USER: pluginuser
@@ -63,11 +73,13 @@ services:
       - database
       - php
     init: true
+    networks:
+      - plugin-test-network
     volumes:
-      - ./vendor/wordpress/wordpress:/var/www/:rw
-      - ./vendor/johnbillion/plugin-infrastructure/config/wp-config.php:/var/www/wp-config.php
-      - ./vendor/johnbillion/plugin-infrastructure/config/php-config.ini:/usr/local/etc/php/conf.d/php-config.ini
-      - ./:/var/www/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
+      - ${HOST_PROJECT_PATH:-.}/vendor/wordpress/wordpress:/var/www/:rw
+      - ${HOST_PROJECT_PATH:-.}/vendor/johnbillion/plugin-infrastructure/config/wp-config.php:/var/www/wp-config.php
+      - ${HOST_PROJECT_PATH:-.}/vendor/johnbillion/plugin-infrastructure/config/php-config.ini:/usr/local/etc/php/conf.d/php-config.ini
+      - ${HOST_PROJECT_PATH:-.}/:/var/www/wp-content/plugins/${COMPOSE_PROJECT_NAME}:rw
     # Keep the service alive:
     command: 'sleep infinity'
 
@@ -78,6 +90,8 @@ services:
       - server
     ports:
       - 4444
+    networks:
+      - plugin-test-network
     extra_hosts:
       - host.docker.internal:host-gateway
     shm_size: 2gb
