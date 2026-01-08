@@ -1,0 +1,154 @@
+name: Delete skipped milestones
+description: Deletes open milestones with versions lower than the released version and moves issues/PRs to the next milestone
+
+inputs:
+  token:
+    description: GitHub token
+    required: true
+    type: string
+  version:
+    description: The version number of the release
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Delete skipped milestones
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        TOKEN: ${{ inputs.token }}
+        VERSION: ${{ inputs.version }}
+      with:
+        retries: 2
+        script: | #js
+          const currentVersion = process.env.VERSION;
+          
+          // Parse semver version
+          function parseSemver(version) {
+            const match = version.match(/^(\d+)\.(\d+)\.(\d+)$/);
+            if (!match) return null;
+            return {
+              major: parseInt(match[1], 10),
+              minor: parseInt(match[2], 10),
+              patch: parseInt(match[3], 10)
+            };
+          }
+          
+          // Compare two semver versions
+          // Returns -1 if a < b, 0 if a == b, 1 if a > b
+          function compareSemver(a, b) {
+            if (a.major !== b.major) return a.major - b.major;
+            if (a.minor !== b.minor) return a.minor - b.minor;
+            return a.patch - b.patch;
+          }
+          
+          // Get the next appropriate milestone for an issue/PR
+          function getNextMilestone(currentVer, allMilestones) {
+            // Find the smallest open milestone that is greater than current version
+            let nextMilestone = null;
+            let minDiff = Infinity;
+            
+            for (const milestone of allMilestones) {
+              const milestoneVer = parseSemver(milestone.title);
+              if (!milestoneVer) continue;
+              
+              const comparison = compareSemver(milestoneVer, currentVer);
+              if (comparison > 0 && comparison < minDiff) {
+                minDiff = comparison;
+                nextMilestone = milestone;
+              }
+            }
+            
+            return nextMilestone;
+          }
+          
+          const current = parseSemver(currentVersion);
+          if (!current) {
+            core.info(`Version ${currentVersion} is not a valid semver version, skipping milestone deletion`);
+            return;
+          }
+          
+          // Fetch all open milestones
+          const { data: milestones } = await github.rest.issues.listMilestones({
+            ...context.repo,
+            state: 'open',
+            per_page: 100
+          });
+          
+          core.info(`Found ${milestones.length} open milestones`);
+          
+          // Find skipped milestones (open milestones with version < current)
+          const skippedMilestones = [];
+          const validMilestones = [];
+          
+          for (const milestone of milestones) {
+            const version = parseSemver(milestone.title);
+            if (!version) {
+              core.info(`Skipping non-semver milestone: ${milestone.title}`);
+              continue;
+            }
+            
+            validMilestones.push(milestone);
+            
+            if (compareSemver(version, current) < 0) {
+              core.info(`Found skipped milestone: ${milestone.title}`);
+              skippedMilestones.push(milestone);
+            }
+          }
+          
+          if (skippedMilestones.length === 0) {
+            core.info('No skipped milestones to delete');
+            return;
+          }
+          
+          // Get the next milestone to move issues/PRs to
+          const nextMilestone = getNextMilestone(current, validMilestones);
+          
+          if (!nextMilestone) {
+            core.warning('No next milestone found to move issues/PRs to');
+          } else {
+            core.info(`Will move issues/PRs to milestone: ${nextMilestone.title}`);
+          }
+          
+          // Process each skipped milestone
+          for (const milestone of skippedMilestones) {
+            core.info(`Processing milestone: ${milestone.title} (number: ${milestone.number})`);
+            
+            // Fetch issues in this milestone
+            const { data: issues } = await github.rest.issues.listForRepo({
+              ...context.repo,
+              milestone: milestone.number,
+              state: 'open',
+              per_page: 100
+            });
+            
+            core.info(`Found ${issues.length} open issues/PRs in milestone ${milestone.title}`);
+            
+            // Move issues/PRs to next milestone
+            if (nextMilestone && issues.length > 0) {
+              for (const issue of issues) {
+                const itemType = issue.pull_request ? 'PR' : 'issue';
+                core.info(`Moving ${itemType} #${issue.number} from ${milestone.title} to ${nextMilestone.title}`);
+                
+                await github.rest.issues.update({
+                  ...context.repo,
+                  issue_number: issue.number,
+                  milestone: nextMilestone.number
+                });
+              }
+            } else if (issues.length > 0) {
+              core.warning(`Cannot move ${issues.length} issues/PRs from ${milestone.title} - no next milestone available`);
+            }
+            
+            // Delete the milestone
+            core.info(`Deleting milestone: ${milestone.title}`);
+            await github.rest.issues.deleteMilestone({
+              ...context.repo,
+              milestone_number: milestone.number
+            });
+            
+            core.info(`Successfully deleted milestone: ${milestone.title}`);
+          }
+          
+          core.info(`Processed ${skippedMilestones.length} skipped milestone(s)`);
