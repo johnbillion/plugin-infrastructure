@@ -47,16 +47,22 @@ runs:
           function getNextMilestone(currentVer, allMilestones) {
             // Find the smallest open milestone that is greater than current version
             let nextMilestone = null;
-            let minDiff = Infinity;
             
             for (const milestone of allMilestones) {
               const milestoneVer = parseSemver(milestone.title);
               if (!milestoneVer) continue;
               
-              const comparison = compareSemver(milestoneVer, currentVer);
-              if (comparison > 0 && comparison < minDiff) {
-                minDiff = comparison;
+              // Only consider milestones greater than current version
+              if (compareSemver(milestoneVer, currentVer) <= 0) continue;
+              
+              // If we don't have a next milestone yet, or this one is smaller than current next
+              if (!nextMilestone) {
                 nextMilestone = milestone;
+              } else {
+                const nextVer = parseSemver(nextMilestone.title);
+                if (compareSemver(milestoneVer, nextVer) < 0) {
+                  nextMilestone = milestone;
+                }
               }
             }
             
