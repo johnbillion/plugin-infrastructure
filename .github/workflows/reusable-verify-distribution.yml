@@ -168,6 +168,21 @@ jobs:
           path: plugin-info.json
           if-no-files-found: error
 
+  fair:
+    name: FAIR info
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+    - name: Verify PLC DID and FAIR metadata
+      env:
+        PLUGIN_DID: ${{ inputs.did }}
+      run: | #shell
+        npm install -g fair-tools
+
+        fair-tools did verify \
+          --did "${PLUGIN_DID}" \
+          --all-releases
+
   did-plc-log:
     name: Update DID PLC Log
     runs-on: ubuntu-latest
