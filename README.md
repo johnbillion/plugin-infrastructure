@@ -114,6 +114,7 @@ Plugins that use this library all use a similar setup in their workflows:
 	* Uses `reusable-verify-distribution.yml`
 		* Verifies the provenance of the plugin on WordPress.org
 		* Verifies the `api.wordpress.org` response for the plugin info
+		* Verifies the PLC DID, its full log, its FAIR service endpoint, and its FAIR metadata
 		* Fetches and updates the DID PLC log
 
 ## Licence
