@@ -47,4 +47,4 @@ if ( defined( 'WP_TESTS_MULTISITE' ) && WP_TESTS_MULTISITE ) {
 }
 
 // WordPress absolute path.
-define( 'ABSPATH', dirname( __DIR__, 3 ) . '/wordpress/wordpress/' );
+define( 'ABSPATH', '/var/www/html/' );
