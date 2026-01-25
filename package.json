@@ -1,6 +1,6 @@
 {
 	"name": "@johnbillion/plugin-infrastructure",
-	"version": "2.7.0",
+	"version": "2.7.1",
 	"description": "Shared utilities for WordPress plugin development",
 	"license": "MIT",
 	"author": "John Blackbourn",
