@@ -1,1 +1,1 @@
-export { GlobalUtils, GlobalUtilsOptions } from './global-utils';
+export { GlobalUtils, GlobalUtilsOptions } from './global-utils.js';

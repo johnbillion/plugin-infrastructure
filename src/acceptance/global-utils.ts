@@ -1,3 +1,5 @@
+import { execSync } from 'child_process';
+
 export interface GlobalUtilsOptions {
 	baseURL: string;
 	pluginSlug: string;
@@ -18,7 +20,6 @@ export class GlobalUtils {
 	 * @throws Error if the command fails
 	 */
 	runWPCLICommand( command: string ): string {
-		const { execSync } = require( 'child_process' );
 		const fullCommand = `docker compose exec --user wp_php wpcli wp --url="${this.baseURL}" ${command}`;
 
 		try {
