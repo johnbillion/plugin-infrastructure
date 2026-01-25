@@ -12,8 +12,8 @@
 	"type": "module",
 	"exports": {
 		"./acceptance": {
-			"import": "./dist/acceptance/index.js",
-			"types": "./dist/acceptance/index.d.ts"
+			"types": "./dist/acceptance/index.d.ts",
+			"default": "./dist/acceptance/index.js"
 		}
 	},
 	"files": [
