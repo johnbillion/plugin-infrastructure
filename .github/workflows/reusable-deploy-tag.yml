@@ -133,9 +133,9 @@ jobs:
         ZIP_PATH: ${{ steps.deploy.outputs.zip-path }}
         FAIR_VERIFICATION_KEY: ${{ secrets.FAIR_VERIFICATION_KEY }}
       run: | #shell
-        npm install -g fair-tools
+        npm install -g fair-tools@0.8.1
 
-        fair-tools metadata build \
+        fair-tools metadata release \
           --plugin-file "${PLUGIN_SLUG}.php" \
           --zip-file "${ZIP_PATH}" \
           --url "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.${VERSION}.zip" \
