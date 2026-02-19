@@ -11,6 +11,7 @@ permissions: {}
 
 jobs:
   npm:
+    name: Publish to npm
     runs-on: ubuntu-latest
     environment:
       name: npm

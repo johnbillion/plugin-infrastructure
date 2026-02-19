@@ -24,7 +24,7 @@ jobs:
     name: Release
     runs-on: ubuntu-24.04
     permissions:
-      contents: write
+      contents: write # Required to push release branch and tags
     timeout-minutes: 10
     steps:
     - name: Checkout repository
