@@ -8,14 +8,6 @@ on:
         required: true
         type: string
         description: The plugin slug
-      did:
-        required: true
-        type: string
-        description: The plugin DID
-      fair-path:
-        required: true
-        type: string
-        description: Relative path to FAIR metadata file
       readme:
         required: true
         type: string
@@ -34,8 +26,6 @@ on:
         description: The WordPress.org SVN username
     secrets:
       WPORG_SVN_PASSWORD:
-        required: true
-      FAIR_VERIFICATION_KEY:
         required: true
     outputs:
       zip-path:
@@ -123,59 +113,6 @@ jobs:
         plugin: ${{ inputs.plugin }}
         version: ${{ inputs.version }}
         zip-path: ${{ steps.deploy.outputs.zip-path }}
-
-    - name: Generate FAIR metadata
-      env:
-        PLUGIN_SLUG: ${{ inputs.plugin }}
-        PLUGIN_DID: ${{ inputs.did }}
-        VERSION: ${{ inputs.version }}
-        FAIR_PATH: ${{ inputs.fair-path }}
-        ZIP_PATH: ${{ steps.deploy.outputs.zip-path }}
-        FAIR_VERIFICATION_KEY: ${{ secrets.FAIR_VERIFICATION_KEY }}
-      run: | #shell
-        npm install -g fair-tools@0.8.1
-
-        fair-tools metadata release \
-          --plugin-file "${PLUGIN_SLUG}.php" \
-          --zip-file "${ZIP_PATH}" \
-          --url "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.${VERSION}.zip" \
-          --did "${PLUGIN_DID}" \
-          --metadata-file "${FAIR_PATH}" \
-          --output-file "${FAIR_PATH}" \
-          --assets-dir ".wordpress-org" \
-          --assets-url "https://ps.w.org/${PLUGIN_SLUG}/assets/"
-
-    - name: Checkout base branch for PR
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      with:
-        ref: ${{ github.event.repository.default_branch }}
-        path: pr-branch
-        persist-credentials: true # Required for pushing the new branch
-
-    - name: Create PR with updated FAIR metadata
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        FAIR_PATH: ${{ inputs.fair-path }}
-        VERSION: ${{ inputs.version }}
-      run: | #shell
-        BRANCH_NAME="fair-metadata-${VERSION}"
-
-        # Copy the updated FAIR metadata to the PR branch checkout
-        cp "${FAIR_PATH}" "pr-branch/${FAIR_PATH}"
-
-        cd pr-branch
-
-        git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git checkout -b "${BRANCH_NAME}"
-        git add "${FAIR_PATH}"
-        git commit -m "Update FAIR metadata for ${VERSION}"
-        git push origin "${BRANCH_NAME}"
-
-        gh pr create \
-          --title "Update FAIR metadata for ${VERSION}" \
-          --body "Updates the FAIR metadata file following the ${VERSION} release." \
-          --head "${BRANCH_NAME}"
 
   github:
     name: GitHub Milestones

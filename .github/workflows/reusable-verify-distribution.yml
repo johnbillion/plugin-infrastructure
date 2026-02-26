@@ -12,14 +12,6 @@ on:
         description: GitHub owner or organisation
         required: true
         type: string
-      did:
-        required: true
-        type: string
-        description: The plugin DID
-      did-log-path:
-        required: true
-        type: string
-        description: Relative path to DID PLC log file
 
 permissions: {}
 
@@ -167,60 +159,3 @@ jobs:
           name: plugin-info.json
           path: plugin-info.json
           if-no-files-found: error
-
-  fair:
-    name: FAIR info
-    runs-on: ubuntu-latest
-    permissions: {}
-    steps:
-      - name: Install fair-tools
-        run: | #shell
-          npm install -g fair-tools
-
-      - name: Verify PLC DID and FAIR metadata
-        env:
-          PLUGIN_DID: ${{ inputs.did }}
-        run: | #shell
-          fair-tools did verify \
-            --did "${PLUGIN_DID}" \
-            --all-releases
-
-  did-plc-log:
-    name: Update DID PLC Log
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write      # Required to push the new branch
-      pull-requests: write  # Required to create the pull request
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: true # Required for pushing the new branch
-
-      - name: Download and save DID PLC log
-        env:
-          DID: ${{ inputs.did }}
-          DID_LOG_PATH: ${{ inputs.did-log-path }}
-        run: | #shell
-          curl --silent --show-error --fail "https://plc.directory/${DID}/log" | jq --tab '.' > "${DID_LOG_PATH}"
-
-      - name: Show diff
-        id: changes
-        run: | #shell
-          git diff --color
-          git status
-
-          if git diff --quiet; then
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Create Pull Request
-        if: steps.changes.outputs.has_changes == 'true'
-        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
-        with:
-          commit-message: "Update DID PLC log"
-          title: "Update DID PLC log"
-          body: "This PR updates the DID PLC log file with the latest data from https://plc.directory/${{ inputs.did }}/log"
-          branch: update-did-plc-log
