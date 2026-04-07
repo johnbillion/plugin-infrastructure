@@ -51,7 +51,9 @@ export class GlobalUtils {
 		const wpVersion = this.runWPCLICommand( 'core version' );
 		// Extract major.minor version from WordPress version string
 		// Examples: "6.2.1" -> "6.2", "6.9-alpha-60684" -> "6.9"
-		const versionMatch = wpVersion.match( /^(\d+\.\d+)/ );
+		// Use the last line of output to avoid PHP deprecation warnings polluting stdout
+		const versionLine = wpVersion.split( '\n' ).pop() || wpVersion;
+		const versionMatch = versionLine.match( /^(\d+\.\d+)/ );
 		if ( ! versionMatch ) {
 			throw new Error( `Unable to parse WordPress version: ${wpVersion}` );
 		}
