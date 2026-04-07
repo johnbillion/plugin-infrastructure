@@ -105,6 +105,7 @@ jobs:
         name: deployed-${{ inputs.plugin }}-${{ inputs.version }}
         path: ${{ steps.deploy.outputs.zip-path }}
         if-no-files-found: error
+        archive: false
 
     - name: Generate build provenance attestation
       if: ${{ inputs.deploy }}
