@@ -88,7 +88,7 @@ jobs:
         cache: ${{ inputs.cache && 'npm' || '' }}
 
     - name: Install node dependencies
-      run: npm ci --no-audit --no-fund
+      run: npm ci --no-audit --no-fund --ignore-scripts
 
     - name: Run the build
       if: ${{ inputs.node }}
