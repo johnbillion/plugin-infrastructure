@@ -23,8 +23,7 @@
 		"node": ">=24"
 	},
 	"scripts": {
-		"build": "tsc",
-		"prepublishOnly": "npm run build"
+		"build": "tsc"
 	},
 	"devDependencies": {
 		"@types/node": "^24.3.0",

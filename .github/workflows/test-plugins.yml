@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: | #shell
-          npm install
+          npm ci --no-audit --no-fund --ignore-scripts
 
       - name: Build package
         run: | #shell

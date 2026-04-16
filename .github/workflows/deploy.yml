@@ -37,7 +37,10 @@ jobs:
         run: npm install -g npm@latest
 
       - name: Install
-        run: npm ci --no-audit --no-fund
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Build
+        run: npm run build
 
       - name: Publish via OIDC trusted publishing
         run: | #shell
