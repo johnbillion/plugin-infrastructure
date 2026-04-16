@@ -54,7 +54,7 @@ jobs:
         with:
           name: "${{ inputs.plugin }}-wordpress-org"
           path: "${{ inputs.plugin }}.zip"
-          if-no-files-found: error
+          if-no-files-found: ignore
           archive: false
 
   wordpress-org-plugin-info:
@@ -159,5 +159,5 @@ jobs:
         with:
           name: plugin-info.json
           path: plugin-info.json
-          if-no-files-found: error
+          if-no-files-found: ignore
           archive: false
