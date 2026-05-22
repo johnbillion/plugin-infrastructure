@@ -20,7 +20,7 @@ export class GlobalUtils {
 	 * @throws Error if the command fails
 	 */
 	runWPCLICommand( command: string ): string {
-		const fullCommand = `docker compose exec --user wp_php wpcli wp --url="${this.baseURL}" ${command}`;
+		const fullCommand = `docker compose exec --user wp_php wpcli php -d error_reporting='E_ALL & ~E_DEPRECATED' /usr/local/bin/wp --url="${this.baseURL}" ${command}`;
 
 		try {
 			const stdout = execSync( fullCommand, { encoding: 'utf8', cwd: process.cwd() } );
@@ -51,9 +51,7 @@ export class GlobalUtils {
 		const wpVersion = this.runWPCLICommand( 'core version' );
 		// Extract major.minor version from WordPress version string
 		// Examples: "6.2.1" -> "6.2", "6.9-alpha-60684" -> "6.9"
-		// Use the last line of output to avoid PHP deprecation warnings polluting stdout
-		const versionLine = wpVersion.split( '\n' ).pop() || wpVersion;
-		const versionMatch = versionLine.match( /^(\d+\.\d+)/ );
+		const versionMatch = wpVersion.match( /^(\d+\.\d+)/ );
 		if ( ! versionMatch ) {
 			throw new Error( `Unable to parse WordPress version: ${wpVersion}` );
 		}
