@@ -67,11 +67,7 @@ Plugins that use this library all use a similar setup in their workflows:
 
 * Push to a main branch or pull request, `lint-workflows.yml` fires
 	* Uses `reusable-workflow-lint.yml`
-		* Lints all GitHub Actions workflow files for correctness and security using:
-			* ActionLint
-			* Octoscan
-			* Zizmor
-			* Poutine
+		* Lints all GitHub Actions workflow files for correctness and security using ActionLint and Zizmor
 		* Uploads results to GitHub Code Scanning
 
 ## Deployment

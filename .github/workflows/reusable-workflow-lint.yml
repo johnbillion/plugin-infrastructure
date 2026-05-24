@@ -26,33 +26,6 @@ jobs:
         with:
           args: "-color -verbose"
 
-  octoscan:
-    name: Octoscan
-    runs-on: ubuntu-24.04
-    permissions:
-      security-events: write # Required for codeql-action/upload-sarif to upload SARIF files.
-      contents: read         # Only needed for private repos. Needed to clone the repo.
-      actions: read          # Only needed for private repos. Needed for codeql-action/upload-sarif to read workflow run info.
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Run octoscan
-        id: octoscan
-        uses: synacktiv/action-octoscan@6b1cf2343893dfb9e5f75652388bd2dc83f456b0 # v1.0.0
-        with:
-          filter_triggers: ''
-
-      - name: Upload SARIF file to GitHub
-        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
-        with:
-          sarif_file: "${{steps.octoscan.outputs.sarif_output}}"
-          category: octoscan
-          wait-for-processing: false
-
   zizmor:
     name: Zizmor
     runs-on: ubuntu-24.04
@@ -81,27 +54,4 @@ jobs:
         with:
           sarif_file: results.sarif
           category: zizmor
-          wait-for-processing: false
-
-  poutine:
-    name: Poutine
-    runs-on: ubuntu-24.04
-    permissions:
-      security-events: write # Required for codeql-action/upload-sarif to upload SARIF files.
-      contents: read         # Only needed for private repos. Needed to clone the repo.
-      actions: read          # Only needed for private repos. Needed for codeql-action/upload-sarif to read workflow run info.
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Run Poutine
-        uses: boostsecurityio/poutine-action@84c0a0d32e8d57ae12651222be1eb15351429228 # v0.15.2
-
-      - name: Upload poutine SARIF file
-        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
-        with:
-          sarif_file: results.sarif
-          category: poutine
           wait-for-processing: false
