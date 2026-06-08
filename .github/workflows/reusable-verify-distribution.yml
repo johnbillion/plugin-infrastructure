@@ -22,14 +22,10 @@ jobs:
     permissions: {}
     steps:
       - name: Fetch plugin from WordPress.org
-        env:
-          PLUGIN_SLUG: ${{ inputs.plugin }}
-        run: | #shell
-          curl \
-            --output "${PLUGIN_SLUG}.zip" \
-            --fail \
-            --user-agent "WordPress/6.8.0; http://localhost:8889" \
-            "https://downloads.wordpress.org/plugin/${PLUGIN_SLUG}.zip"
+        uses: johnbillion/plugin-infrastructure/.github/actions/download-with-retry@trunk
+        with:
+          url: "https://downloads.wordpress.org/plugin/${{ inputs.plugin }}.zip"
+          output: "${{ inputs.plugin }}.zip"
 
       - name: Verify build provenance attestation
         id: verify-attestation
@@ -64,15 +60,10 @@ jobs:
       contents: read
     steps:
       - name: Fetch plugin info from WordPress.org
-        id: fetch-plugin-info
-        env:
-          PLUGIN_SLUG: ${{ inputs.plugin }}
-        run: | #shell
-          curl \
-            --output plugin-info.json \
-            --fail \
-            --user-agent "WordPress/6.8.0; http://localhost:8889" \
-            "https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request%5Bslug%5D=${PLUGIN_SLUG}"
+        uses: johnbillion/plugin-infrastructure/.github/actions/download-with-retry@trunk
+        with:
+          url: "https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request%5Bslug%5D=${{ inputs.plugin }}"
+          output: plugin-info.json
 
       - name: Fetch latest stable tag from GitHub
         id: fetch-github-tag
