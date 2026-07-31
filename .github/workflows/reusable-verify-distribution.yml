@@ -22,7 +22,7 @@ jobs:
     permissions: {}
     steps:
       - name: Fetch plugin from WordPress.org
-        uses: johnbillion/plugin-infrastructure/.github/actions/download-with-retry@trunk
+        uses: johnbillion/plugin-infrastructure/actions/download-with-retry@trunk
         with:
           url: "https://downloads.wordpress.org/plugin/${{ inputs.plugin }}.zip"
           output: "${{ inputs.plugin }}.zip"
@@ -60,7 +60,7 @@ jobs:
       contents: read
     steps:
       - name: Fetch plugin info from WordPress.org
-        uses: johnbillion/plugin-infrastructure/.github/actions/download-with-retry@trunk
+        uses: johnbillion/plugin-infrastructure/actions/download-with-retry@trunk
         with:
           url: "https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request%5Bslug%5D=${{ inputs.plugin }}"
           output: plugin-info.json
