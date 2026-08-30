@@ -79,7 +79,7 @@ jobs:
         WP_VERSION: ${{ inputs.wp }}
 
     - name: Start Docker environment
-      run: composer exec tests-start
+      run: composer exec -- tests-start php
 
     - name: Debugging
       run: | #shell
@@ -92,8 +92,6 @@ jobs:
         docker compose exec php php -m
         echo "=== Database ==="
         docker compose exec database mariadb --version
-        echo "=== WP-CLI ==="
-        docker compose exec --user wp_php wpcli wp core version
 
     - name: Run integration tests
       run: composer run test:integration
