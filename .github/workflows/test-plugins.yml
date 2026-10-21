@@ -53,6 +53,7 @@ jobs:
         plugin:
           - query-monitor
           - user-switching
+          - wp-crontrol
       fail-fast: false
     runs-on: ubuntu-24.04
     timeout-minutes: 5
