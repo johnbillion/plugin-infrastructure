@@ -5,9 +5,13 @@
 set -eo pipefail
 
 # Args
-PLUGIN=${PWD##*/}
+PLUGIN=$(jq -r .name package.json)
 
 # Environment variables
-export COMPOSE_PROJECT_NAME=${PLUGIN}
+# The project name includes a hash of the checkout's real path so that two checkouts of the
+# same plugin (eg git worktrees) get their own containers, network, and database. A value
+# that is already set (eg in CI) is left alone so that plain `docker compose` commands match.
+export PLUGIN_SLUG=${PLUGIN}
+export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PLUGIN}-$(pwd -P | shasum | cut -c1-8)}
 
 docker compose up --quiet-pull -d "$@"

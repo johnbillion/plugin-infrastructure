@@ -5,9 +5,10 @@
 set -eo pipefail
 
 # Args
-PLUGIN=${PWD##*/}
+PLUGIN=$(jq -r .name package.json)
 
 # Environment variables
-export COMPOSE_PROJECT_NAME=${PLUGIN}
+export PLUGIN_SLUG=${PLUGIN}
+export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PLUGIN}-$(pwd -P | shasum | cut -c1-8)}
 
 docker compose down
