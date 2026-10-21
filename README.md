@@ -13,7 +13,7 @@ Provided without support, warranty, guarantee, backwards compatibility, fitness 
 
 ## Features
 
-* Containerised test environment
+* Containerised test environment, isolated per checkout so tests can run in several git worktrees at the same time
 * Support for an npm build step
 * Acceptance testing
 * Integration testing
