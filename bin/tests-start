@@ -4,14 +4,12 @@
 # -o pipefail Produce a failure return code if any command errors
 set -eo pipefail
 
-# Args
-PLUGIN=$(jq -r .name package.json)
+source "$(dirname "$(realpath "${BASH_SOURCE[0]}")")/env.sh"
 
-# Environment variables
-# The project name includes a hash of the checkout's real path so that two checkouts of the
-# same plugin (eg git worktrees) get their own containers, network, and database. A value
-# that is already set (eg in CI) is left alone so that plain `docker compose` commands match.
-export PLUGIN_SLUG=${PLUGIN}
-export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PLUGIN}-$(pwd -P | shasum | cut -c1-8)}
+# WordPress core and the test dependencies come from Composer:
+if [ ! -f vendor/autoload.php ]; then
+	echo 'ℹ️ Installing Composer dependencies...'
+	"$(dirname "$(realpath "${BASH_SOURCE[0]}")")/tests-composer" install
+fi
 
 docker compose up --quiet-pull -d "$@"

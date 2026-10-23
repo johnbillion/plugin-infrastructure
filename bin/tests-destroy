@@ -4,11 +4,6 @@
 # -o pipefail Produce a failure return code if any command errors
 set -eo pipefail
 
-# Args
-PLUGIN=$(jq -r .name package.json)
-
-# Environment variables
-export PLUGIN_SLUG=${PLUGIN}
-export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PLUGIN}-$(pwd -P | shasum | cut -c1-8)}
+source "$(dirname "$(realpath "${BASH_SOURCE[0]}")")/env.sh"
 
 docker compose down --volumes --remove-orphans

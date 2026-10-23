@@ -44,6 +44,7 @@ jobs:
           echo PHP_FPM_GID="$(id -g)"
           echo PLUGIN_SLUG="${PLUGIN_SLUG}"
           echo COMPOSE_PROJECT_NAME="${PLUGIN_SLUG}"
+          echo PLUGIN_INFRASTRUCTURE_PATH=vendor/johnbillion/plugin-infrastructure
         } >> "$GITHUB_ENV"
 
     - name: Install PHP

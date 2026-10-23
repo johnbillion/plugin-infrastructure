@@ -16,8 +16,19 @@
 			"default": "./dist/acceptance/index.js"
 		}
 	},
+	"bin": {
+		"acceptance-tests": "bin/acceptance-tests",
+		"integration-tests": "bin/integration-tests",
+		"tests-composer": "bin/tests-composer",
+		"tests-destroy": "bin/tests-destroy",
+		"tests-start": "bin/tests-start",
+		"tests-stop": "bin/tests-stop"
+	},
 	"files": [
-		"dist"
+		"bin",
+		"config",
+		"dist",
+		"tests"
 	],
 	"engines": {
 		"node": ">=24"
