@@ -18,30 +18,42 @@ jobs:
     permissions:
       contents: read
     timeout-minutes: 10
+    env:
+      LOCAL_PHP: ${{ inputs.php }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         persist-credentials: false
 
+    - name: Configure environment variables
+      run: | #shell
+        echo COMPOSER_CACHE_DIR="${RUNNER_TEMP}/composer-cache" >> "$GITHUB_ENV"
+        echo "${GITHUB_WORKSPACE}/node_modules/.bin" >> "$GITHUB_PATH"
+
+    # PHPCS runs in a container. PHP on the host is only needed for cs2pr.
     - name: Install PHP
       uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
       with:
         php-version: ${{ inputs.php }}
-        tools: composer:v2, cs2pr
+        tools: cs2pr
         coverage: none
-        ini-file: development
       env:
         fail-fast: true
 
-    - name: Get Composer cache directory
-      id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+    - name: Setup node
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      with:
+        node-version-file: '.nvmrc'
+        cache: npm
+
+    - name: Install node dependencies
+      run: npm ci --no-audit --no-fund --ignore-scripts
 
     - name: Composer cache
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
-        path: ${{ steps.composer-cache.outputs.dir }}
+        path: ${{ runner.temp }}/composer-cache
         key: composer-${{ inputs.php }}-${{ hashFiles('composer.json') }}
 
     - name: PHPCS cache
@@ -51,21 +63,19 @@ jobs:
         key: phpcs-${{ inputs.php }}-${{ hashFiles('composer.json') }}-${{ hashFiles('phpcs.xml.dist') }}
 
     - name: Debugging
-      run: | #shell
-        php --version
-        composer --version
+      run: tests-composer --version
 
     - name: Composer validate
-      run: composer validate --strict --no-check-lock
+      run: tests-composer validate --strict --no-check-lock
 
     - name: Install dependencies
-      run: composer install
+      run: tests-composer install
 
     - name: Create PHPCS cache directory
       run: mkdir --parents tests/cache
 
     - name: Run code sniffer
-      run: composer run test:phpcs -- --report-checkstyle=./tests/cache/phpcs-report.xml
+      run: tests-composer run test:phpcs -- --report-checkstyle=./tests/cache/phpcs-report.xml
       id: phpcs
 
     - name: Show PHPCS results in PR

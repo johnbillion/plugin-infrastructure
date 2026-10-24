@@ -24,13 +24,6 @@
 	},
 	"require-dev": {
 	},
-	"bin": [
-		"bin/acceptance-tests",
-		"bin/integration-tests",
-		"bin/tests-destroy",
-		"bin/tests-start",
-		"bin/tests-stop"
-	],
 	"config": {
 		"sort-packages": true
 	},
