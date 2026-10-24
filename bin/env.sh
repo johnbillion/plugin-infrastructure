@@ -8,14 +8,8 @@ PLUGIN=$(jq -r .name package.json)
 export PLUGIN_SLUG=${PLUGIN}
 export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PLUGIN}-$(pwd -P | shasum | cut -c1-8)}
 
-# This package can be installed with either Composer or npm. The Docker config is read from
-# whichever one the calling script came from. `$0` is the calling script, not this file.
-if [ -z "${PLUGIN_INFRASTRUCTURE_PATH}" ]; then
-	case "$0" in
-		*/vendor/*) export PLUGIN_INFRASTRUCTURE_PATH=vendor/johnbillion/plugin-infrastructure ;;
-		*) export PLUGIN_INFRASTRUCTURE_PATH=node_modules/@johnbillion/plugin-infrastructure ;;
-	esac
-fi
+# Shared with a host install of Composer, if there is one.
+export COMPOSER_CACHE_DIR=${COMPOSER_CACHE_DIR:-${XDG_CACHE_HOME:-${HOME}/.cache}/composer}
 
 # Files written by the containers are owned by the host user.
 export PHP_FPM_UID=${PHP_FPM_UID:-$(id -u)}

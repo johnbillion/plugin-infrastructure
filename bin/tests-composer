@@ -9,4 +9,8 @@ source "$(dirname "$(realpath "${BASH_SOURCE[0]}")")/env.sh"
 # Run Composer in a container so it doesn't need to be installed on the host, eg:
 #   tests-composer install
 #   tests-composer test:phpstan
+
+# Docker would create a missing cache directory owned by root, which the container user can't write to.
+mkdir -p "${COMPOSER_CACHE_DIR}"
+
 docker compose run --rm --quiet-pull composer "$@"
