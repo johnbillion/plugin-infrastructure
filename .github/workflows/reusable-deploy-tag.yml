@@ -109,7 +109,7 @@ jobs:
 
     - name: Generate build provenance attestation
       if: ${{ inputs.deploy }}
-      uses: johnbillion/action-wordpress-plugin-attestation@f89f7b4b5da25da16d5ba98cf5e345f7827b745d # fix/validate-downloaded-zip
+      uses: johnbillion/action-wordpress-plugin-attestation@53670e9a57dbd5b349467e669b8def15e9fd3ea3 # 0.7.4
       with:
         plugin: ${{ inputs.plugin }}
         version: ${{ inputs.version }}
