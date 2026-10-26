@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# -e          Exit immediately if a pipeline returns a non-zero status
+# -o pipefail Produce a failure return code if any command errors
+set -eo pipefail
+
+source "$(dirname "$(realpath "${BASH_SOURCE[0]}")")/env.sh"
+
+# Run Composer in a container so it doesn't need to be installed on the host, eg:
+#   tests-composer install
+#   tests-composer test:phpstan
+
+# Docker would create a missing cache directory owned by root, which the container user can't write to.
+mkdir -p "${COMPOSER_CACHE_DIR}"
+
+docker compose run --rm --quiet-pull composer "$@"

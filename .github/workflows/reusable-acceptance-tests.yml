@@ -48,43 +48,9 @@ jobs:
           echo PHP_FPM_GID="$(id -g)"
           echo PLUGIN_SLUG="${PLUGIN_SLUG}"
           echo COMPOSE_PROJECT_NAME="${PLUGIN_SLUG}"
+          echo COMPOSER_CACHE_DIR="${RUNNER_TEMP}/composer-cache"
         } >> "$GITHUB_ENV"
-
-    - name: Install PHP
-      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
-      with:
-        php-version: 8.0
-        tools: composer:v2
-        coverage: none
-        ini-file: development
-      env:
-        fail-fast: true
-
-    - name: Get Composer cache directory
-      if: ${{ inputs.cache }}
-      id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-
-    - name: Composer cache
-      if: ${{ inputs.cache }}
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: composer-8.0-${{ hashFiles('composer.json') }}
-
-    - name: Install Composer dependencies
-      run: | #shell
-        if [ "${WP_VERSION}" == "latest" ]; then
-          composer install --dev
-        elif [ "${WP_VERSION}" == "nightly" ]; then
-          composer require --dev --update-with-dependencies roots/wordpress-full="dev-main"
-        elif [[ "${WP_VERSION}" =~ ^[0-9]\.[0-9]$ ]]; then
-          composer require --dev --update-with-dependencies roots/wordpress-full="~${WP_VERSION}.0"
-        else
-          composer require --dev --update-with-dependencies roots/wordpress-full="${WP_VERSION}"
-        fi
-      env:
-        WP_VERSION: ${{ inputs.wp }}
+        echo "${GITHUB_WORKSPACE}/node_modules/.bin" >> "$GITHUB_PATH"
 
     - name: Setup node
       uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -95,12 +61,33 @@ jobs:
     - name: Install node dependencies
       run: npm ci --no-audit --no-fund --ignore-scripts
 
+    - name: Composer cache
+      if: ${{ inputs.cache }}
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ runner.temp }}/composer-cache
+        key: composer-${{ inputs.php }}-${{ hashFiles('composer.json') }}
+
+    - name: Install Composer dependencies
+      run: | #shell
+        if [ "${WP_VERSION}" == "latest" ]; then
+          tests-composer install --dev
+        elif [ "${WP_VERSION}" == "nightly" ]; then
+          tests-composer require --dev --update-with-dependencies roots/wordpress-full="dev-main"
+        elif [[ "${WP_VERSION}" =~ ^[0-9]\.[0-9]$ ]]; then
+          tests-composer require --dev --update-with-dependencies roots/wordpress-full="~${WP_VERSION}.0"
+        else
+          tests-composer require --dev --update-with-dependencies roots/wordpress-full="${WP_VERSION}"
+        fi
+      env:
+        WP_VERSION: ${{ inputs.wp }}
+
     - name: Run the build
       if: ${{ inputs.node }}
       run: npm run build
 
     - name: Start Docker environment
-      run: composer exec tests-start
+      run: tests-start
 
     - name: Debugging
       run: | #shell
@@ -117,7 +104,7 @@ jobs:
         docker compose exec --user wp_php wpcli wp core version
 
     - name: Run the tests
-      run: composer run test:acceptance
+      run: npm run test:acceptance
 
     - name: Upload test artifacts
       if: failure()
