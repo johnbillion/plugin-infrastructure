@@ -1,0 +1,5 @@
+# actionlint doesn't recognise cache-mode yet: https://github.com/rhysd/actionlint/issues/762
+paths:
+  .github/workflows/**/*.yml:
+    ignore:
+      - 'unexpected key "cache-mode" for ".+" section'
