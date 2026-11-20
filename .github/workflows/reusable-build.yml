@@ -8,10 +8,6 @@ on:
         required: true
         type: boolean
         description: Whether to run the Node build step and add the assets to the commit
-      vendor:
-        required: true
-        type: boolean
-        description: Whether to generate the Composer autoloader files and add them to the commit
       tag:
         required: true
         type: boolean
@@ -58,17 +54,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install PHP
-      if: ${{ inputs.vendor }}
-      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
-      with:
-        php-version: 8.0
-        tools: composer:v2
-        coverage: none
-        ini-file: development
-      env:
-        fail-fast: true
-
     - name: Setup node
       if: ${{ inputs.node }}
       uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -79,16 +64,6 @@ jobs:
     - name: Install Dependencies
       if: ${{ inputs.node }}
       run: npm ci --no-audit --no-fund --ignore-scripts
-
-    - name: Generate autoload file
-      if: ${{ inputs.vendor }}
-      run: | #shell
-        composer install
-        # We can't call `composer run build-vendor` here because the script itself messes with
-        # Composer dependencies and can result in a fatal error when dev dependencies are removed.
-        ./vendor/johnbillion/plugin-infrastructure/bin/build-vendor
-        git add -f vendor/autoload.php
-        git add -f vendor/composer/*
 
     - name: Build Assets
       if: ${{ inputs.node }}
