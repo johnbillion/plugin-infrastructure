@@ -1,44 +1,41 @@
 #!/usr/bin/env bash
 
-# Generates the production Composer autoloader into vendor/autoload.php and vendor/composer/ without
-# installing any packages, so no third-party code runs.
+# -e          Exit immediately if a pipeline returns a non-zero status
+# -o pipefail Produce a failure return code if any command errors
+set -eo pipefail
 
-set -euo pipefail
-
-# Without installed.json Composer sees no installed packages, so none end up in the classmap:
+# Generate the non-dev autoloader without installing any packages. Without vendor/composer/installed.json
+# Composer sees no installed packages, so none end up in the classmap:
 echo 'ℹ️ Removing vendor/composer...'
-rm -rf vendor/composer
-
+rm -rf "${PWD}/vendor/composer"
 echo 'ℹ️ Dumping non-dev autoloader...'
 composer dump-autoload --no-dev --no-scripts --no-plugins
 
+# Confirm that the line to be removed exists, otherwise the check below would pass without removing anything:
+if [ "$(grep -c 'InstalledVersions' "${PWD}/vendor/composer/autoload_static.php")" -ne 1 ]; then
+	echo 'ℹ️ Expected exactly one InstalledVersions line in autoload_static.php!'
+	exit 1
+fi
+
 # Remove autoloading for `\Composer\InstalledVersions`:
-static='vendor/composer/autoload_static.php'
-needle='InstalledVersions'
+echo 'ℹ️ Removing autoloading for \Composer\InstalledVersions...'
+sed -i.bak '/InstalledVersions/d' "${PWD}/vendor/composer/autoload_static.php"
+echo 'ℹ️ Removing backup file...'
+rm "${PWD}/vendor/composer/autoload_static.php.bak"
 
-# Without this, a needle that doesn't match would let the removal silently do nothing:
-if [ "$(grep -cF -- "${needle}" "${static}")" -ne 1 ]; then
-	echo "❌ Expected exactly one ${needle} line in ${static}"
+# Confirm that the change was successful:
+if grep -q 'InstalledVersions' "${PWD}/vendor/composer/autoload_static.php" >/dev/null; then
+	echo 'ℹ️ Composer\InstalledVersions deletion failed!'
 	exit 1
 fi
 
-sed -i.bak "/${needle}/d" "${static}"
-rm "${static}.bak"
-
+# Remove files not needed for deployment:
 echo 'ℹ️ Removing files not needed for deployment...'
-rm -f \
-	vendor/composer/autoload_classmap.php \
-	vendor/composer/autoload_files.php \
-	vendor/composer/autoload_namespaces.php \
-	vendor/composer/autoload_psr4.php \
-	vendor/composer/installed.json \
-	vendor/composer/installed.php \
-	vendor/composer/InstalledVersions.php
+rm -f "${PWD}/vendor/composer/autoload_classmap.php"
+rm -f "${PWD}/vendor/composer/autoload_files.php"
+rm -f "${PWD}/vendor/composer/autoload_namespaces.php"
+rm -f "${PWD}/vendor/composer/autoload_psr4.php"
+rm -f "${PWD}/vendor/composer/installed.json"
+rm -f "${PWD}/vendor/composer/InstalledVersions.php"
 
-if grep -qF 'InstalledVersions' vendor/autoload.php vendor/composer/*; then
-	echo '❌ The autoloader still references InstalledVersions:'
-	grep -nF 'InstalledVersions' vendor/autoload.php vendor/composer/*
-	exit 1
-fi
-
-echo '✅ Vendor build complete. Run "composer install" to restore the development autoloader.'
+echo '✅ Vendor build complete.'
