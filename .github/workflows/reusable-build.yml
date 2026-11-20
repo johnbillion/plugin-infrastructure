@@ -86,15 +86,6 @@ jobs:
         composer remove composer/installers --no-update --no-scripts --no-plugins
         composer dump-autoload --no-dev --no-scripts --no-plugins
 
-        # Another plugin may have loaded an older ClassLoader that lacks this method:
-        # shellcheck disable=SC2016
-        sed -i 's/^        \$loader->setClassMapAuthoritative(true);/        if (method_exists(\$loader,"setClassMapAuthoritative")){\n            \$loader->setClassMapAuthoritative(true);\n        }/' vendor/composer/autoload_real.php
-        # shellcheck disable=SC2016
-        if ! grep -q 'method_exists(\$loader,"setClassMapAuthoritative")' vendor/composer/autoload_real.php; then
-          echo 'setClassMapAuthoritative replacement failed'
-          exit 1
-        fi
-
         sed -i '/Composer\\\\InstalledVersions/d' vendor/composer/autoload_static.php
         if grep -q 'Composer\\\\InstalledVersions' vendor/composer/autoload_static.php; then
           echo 'Composer\InstalledVersions deletion failed'
