@@ -68,39 +68,21 @@ jobs:
       env:
         fail-fast: true
 
+    # The vendor build script comes from the plugin-infrastructure npm package.
     - name: Setup node
-      if: ${{ inputs.node }}
+      if: ${{ inputs.node || inputs.vendor }}
       uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
       with:
         node-version-file: '.nvmrc'
 
     - name: Install Dependencies
-      if: ${{ inputs.node }}
+      if: ${{ inputs.node || inputs.vendor }}
       run: npm ci --no-audit --no-fund --ignore-scripts
 
     - name: Generate autoload file
       if: ${{ inputs.vendor }}
       run: | #shell
-        # Only the autoloader is shipped, so it's generated without installing any packages. This
-        # means no third-party code runs while the release is built.
-        composer remove composer/installers --no-update --no-scripts --no-plugins
-        composer dump-autoload --no-dev --no-scripts --no-plugins
-
-        sed -i '/Composer\\\\InstalledVersions/d' vendor/composer/autoload_static.php
-        if grep -q 'Composer\\\\InstalledVersions' vendor/composer/autoload_static.php; then
-          echo 'Composer\InstalledVersions deletion failed'
-          exit 1
-        fi
-
-        rm -f \
-          vendor/composer/autoload_classmap.php \
-          vendor/composer/autoload_files.php \
-          vendor/composer/autoload_namespaces.php \
-          vendor/composer/autoload_psr4.php \
-          vendor/composer/installed.json \
-          vendor/composer/installed.php \
-          vendor/composer/InstalledVersions.php
-
+        node_modules/.bin/build-vendor
         git add -f vendor/autoload.php
         git add -f vendor/composer/*
 

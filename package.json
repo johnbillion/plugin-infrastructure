@@ -16,7 +16,11 @@
 			"default": "./dist/acceptance/index.js"
 		}
 	},
+	"bin": {
+		"build-vendor": "bin/build-vendor"
+	},
 	"files": [
+		"bin/build-vendor",
 		"dist"
 	],
 	"engines": {

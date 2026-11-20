@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+# Generates the production Composer autoloader into vendor/autoload.php and vendor/composer/ without
+# installing any packages, so no third-party code runs.
+
+set -euo pipefail
+
+root="$(pwd)"
+build="$(mktemp -d)"
+trap 'rm -rf "${build}"' EXIT
+
+# Build in a copy so that composer.json isn't modified and any locally installed packages don't end
+# up in the classmap:
+echo 'ℹ️ Copying plugin to a temporary directory...'
+tar -C "${root}" --exclude=./vendor --exclude=./node_modules --exclude=./.git -cf - . | tar -C "${build}" -xf -
+cd "${build}"
+
+echo 'ℹ️ Dumping non-dev autoloader...'
+composer remove composer/installers --no-update --no-scripts --no-plugins
+composer dump-autoload --no-dev --no-scripts --no-plugins
+
+# Remove autoloading for `\Composer\InstalledVersions`:
+static='vendor/composer/autoload_static.php'
+needle='InstalledVersions'
+
+# Without this, a needle that doesn't match would let the removal silently do nothing:
+if [ "$(grep -cF -- "${needle}" "${static}")" -ne 1 ]; then
+	echo "❌ Expected exactly one ${needle} line in ${static}"
+	exit 1
+fi
+
+grep -vF -- "${needle}" "${static}" > "${static}.tmp"
+mv "${static}.tmp" "${static}"
+
+echo 'ℹ️ Removing files not needed for deployment...'
+rm -f \
+	vendor/composer/autoload_classmap.php \
+	vendor/composer/autoload_files.php \
+	vendor/composer/autoload_namespaces.php \
+	vendor/composer/autoload_psr4.php \
+	vendor/composer/installed.json \
+	vendor/composer/installed.php \
+	vendor/composer/InstalledVersions.php
+
+if grep -rqF 'InstalledVersions' vendor; then
+	echo '❌ The autoloader still references InstalledVersions:'
+	grep -rnF 'InstalledVersions' vendor
+	exit 1
+fi
+
+echo 'ℹ️ Copying autoloader into vendor/...'
+mkdir -p "${root}/vendor"
+rm -rf "${root}/vendor/composer"
+cp vendor/autoload.php "${root}/vendor/autoload.php"
+cp -R vendor/composer "${root}/vendor/composer"
+
+echo '✅ Vendor build complete. Run "composer install" to restore the development autoloader.'
