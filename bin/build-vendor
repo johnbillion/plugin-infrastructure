@@ -22,8 +22,8 @@ if [ "$(grep -cF -- "${needle}" "${static}")" -ne 1 ]; then
 	exit 1
 fi
 
-grep -vF -- "${needle}" "${static}" > "${static}.tmp"
-mv "${static}.tmp" "${static}"
+sed -i.bak "/${needle}/d" "${static}"
+rm "${static}.bak"
 
 echo 'ℹ️ Removing files not needed for deployment...'
 rm -f \
