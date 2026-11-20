@@ -5,18 +5,11 @@
 
 set -euo pipefail
 
-root="$(pwd)"
-build="$(mktemp -d)"
-trap 'rm -rf "${build}"' EXIT
-
-# Build in a copy so that composer.json isn't modified and any locally installed packages don't end
-# up in the classmap:
-echo 'ℹ️ Copying plugin to a temporary directory...'
-tar -C "${root}" --exclude=./vendor --exclude=./node_modules --exclude=./.git -cf - . | tar -C "${build}" -xf -
-cd "${build}"
+# Without installed.json Composer sees no installed packages, so none end up in the classmap:
+echo 'ℹ️ Removing vendor/composer...'
+rm -rf vendor/composer
 
 echo 'ℹ️ Dumping non-dev autoloader...'
-composer remove composer/installers --no-update --no-scripts --no-plugins
 composer dump-autoload --no-dev --no-scripts --no-plugins
 
 # Remove autoloading for `\Composer\InstalledVersions`:
@@ -42,16 +35,10 @@ rm -f \
 	vendor/composer/installed.php \
 	vendor/composer/InstalledVersions.php
 
-if grep -rqF 'InstalledVersions' vendor; then
+if grep -qF 'InstalledVersions' vendor/autoload.php vendor/composer/*; then
 	echo '❌ The autoloader still references InstalledVersions:'
-	grep -rnF 'InstalledVersions' vendor
+	grep -nF 'InstalledVersions' vendor/autoload.php vendor/composer/*
 	exit 1
 fi
-
-echo 'ℹ️ Copying autoloader into vendor/...'
-mkdir -p "${root}/vendor"
-rm -rf "${root}/vendor/composer"
-cp vendor/autoload.php "${root}/vendor/autoload.php"
-cp -R vendor/composer "${root}/vendor/composer"
 
 echo '✅ Vendor build complete. Run "composer install" to restore the development autoloader.'
