@@ -41,6 +41,7 @@ jobs:
   wordpress:
     name: WordPress.org
     runs-on: ubuntu-24.04
+    cache-mode: none
     permissions:
       id-token: write       # Required for creating an OIDC token for build provenance attestation
       attestations: write   # Required to store the build provenance attestation
@@ -55,7 +56,7 @@ jobs:
     steps:
 
     - name: Populate Changelog
-      uses: johnbillion/action-changelog@trunk
+      uses: johnbillion/action-changelog@ba56c7f70bde50ad068cc439d7081529067fe739 # 1.0.0
       id: changelog
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
